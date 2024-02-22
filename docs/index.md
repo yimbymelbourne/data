@@ -45,7 +45,7 @@ toc: false
 </style>
 
 <div class="hero">
-  <h1>YIMBY Melbourne</h1>
+  <h1>YIMBY Melbourne Data</h1>
   <h2>Welcome to your new project! Edit&nbsp;<code style="font-size: 90%;">docs/index.md</code> to change this page.</h2>
   <a href="https://observablehq.com/framework/getting-started" target="_blank">Get started<span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
 </div>
