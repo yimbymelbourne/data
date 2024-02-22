@@ -1,4 +1,4 @@
-# YIMBY Melbourne Data repo
+# YIMBY Melbourne data repo
 
 This is YIMBY Melbourne's unified data repository. It contains raw data, data cleaning scripts, data processing scripts, and visualization. 
 
