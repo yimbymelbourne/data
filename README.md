@@ -16,7 +16,7 @@ Then visit <http://localhost:3000> to preview your project.
 
 For more, see <https://observablehq.com/framework/getting-started>.
 
-## Project structure
+### Project structure
 
 A typical Framework project looks like this:
 
@@ -47,7 +47,7 @@ A typical Framework project looks like this:
 
 **`observablehq.config.ts`** - This is the [project configuration](https://observablehq.com/framework/config) file, such as the pages and sections in the sidebar navigation, and the project’s title.
 
-## Command reference
+### Command reference
 
 | Command           | Description                                              |
 | ----------------- | -------------------------------------------------------- |
