@@ -4,7 +4,7 @@ This is YIMBY Melbourne's unified data repository. It contains raw data, data cl
 
 The visualizations are composited into articles that are then hosted at [https://yimby-melbourne.observablehq.cloud/data-portal/](https://yimby-melbourne.observablehq.cloud/data-portal/).
 
----
+## Contributing
 
 This is an [Observable Framework](https://observablehq.com/framework) project. To start the local preview server, run:
 
