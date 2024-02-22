@@ -1,8 +1,8 @@
-# YIMBY Melbourne data repo
+# YIMBY Melbourne Data
 
-This is YIMBY Melbourne's unified data repository. It contains raw data, data cleaning scripts, data processing scripts, and visualization. 
+This is YIMBY Melbourne's unified data repository. It contains raw data, data cleaning scripts, data processing scripts and visualizations.
 
-These visualization are hosted at [https://yimby-melbourne.observablehq.cloud/data-portal/](https://yimby-melbourne.observablehq.cloud/data-portal/)
+The visualizations are composited into articles that are hosted at [https://yimby-melbourne.observablehq.cloud/data-portal/](https://yimby-melbourne.observablehq.cloud/data-portal/).
 
 ---
 
