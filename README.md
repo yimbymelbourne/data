@@ -6,13 +6,36 @@ The visualizations are composited into articles that are then hosted at [https:/
 
 ## Contributing
 
-This is an [Observable Framework](https://observablehq.com/framework) project. To start the local preview server, run:
+This is an [Observable Framework](https://observablehq.com/framework) project. 
+
+To install JavaScript dependencies, run:
+
+```
+npm install
+```
+
+To install Python dependencies, run:
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+To start the local preview server, run:
 
 ```
 npm run dev
 ```
 
 Then visit <http://localhost:3000> to preview your project.
+
+To exit the Python virtual environment, run:
+
+```
+deactivate
+```
+
 
 For more, see <https://observablehq.com/framework/getting-started>.
 
