@@ -25,8 +25,8 @@ Plot.plot({
       x: "bar or pub - within 500m", 
       y: "park area - within 500m", 
       fill: "median_rent_weekly", 
-      tip: { channels: { name: "geography_name" }}
-    })
-  ]
+      tip: { channels: { name: "geography_name" } },
+    }),
+  ],
 })
 ```
