@@ -18,10 +18,15 @@ Plot.plot({
   grid: true,
   color: {
     legend: true,
-    scheme: "plasma"
+    scheme: "plasma",
   },
   marks: [
-    Plot.dot(final_sal_parquet, {x: "bar or pub - within 500m", y: "park area - within 500m", fill: "median_rent_weekly", tip: { channels: { name: "geography_name" }} })
+    Plot.dot(final_sal_parquet, { 
+      x: "bar or pub - within 500m", 
+      y: "park area - within 500m", 
+      fill: "median_rent_weekly", 
+      tip: { channels: { name: "geography_name" }}
+    })
   ]
 })
 ```
