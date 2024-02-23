@@ -51,8 +51,25 @@ const style = {
     "opacity": 0.65
 };
 
-// TODO: Figure out why nothings appearing.
 L.geoJSON(final_sat_geojson).addTo(map, {
     style
 });
+```
+
+```js
+Plot.plot({
+  grid: true,
+  aspectRatio: 1,
+  color: {
+    legend: true,
+    label: "Median rent, weekly ($)",
+    scheme: "plasma",
+  },
+  marks: [
+    Plot.geo(final_sat_geojson, { 
+      fill: d => d.properties.median_rent_weekly, 
+      tip: { channels: { name: d => d.properties.geography_name } },
+    }),
+  ],
+})
 ```

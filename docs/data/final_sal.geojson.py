@@ -16,7 +16,8 @@ with open('docs/data/final_sal.feather', 'wb') as file:
 # Use geopandas to read the feather file
 gdf = gpd.read_feather('docs/data/final_sal.feather')
 
-gdf.to_file("docs/data/temp_final_sal.geojson", driver='GeoJSON')
+# Max Bo: no idea what to_crs does, Tom told me to do it.
+gdf.to_crs(epsg=4326).to_file("docs/data/temp_final_sal.geojson", driver='GeoJSON')
 
 # read in binary mode
 with open('docs/data/temp_final_sal.geojson', 'rb') as file:
