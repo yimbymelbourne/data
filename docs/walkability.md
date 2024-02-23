@@ -5,7 +5,7 @@ title: Walkability
 # Walkability
 
 ```js
-const final_sal_parquet = FileAttachment("data/final_sal.parquet").parquet();
+const final_sal_parquet = FileAttachment("data/final_sal.parquet").parquet()
 ```
 
 Let's try and reconstruct the parks and pubs visualization from

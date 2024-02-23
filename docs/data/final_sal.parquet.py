@@ -1,8 +1,7 @@
 import os
 import requests
 import sys
-import pyarrow.feather as feather
-import pyarrow.parquet as pq
+import geopandas as gpd
 
 # We need to convert Tom's feather file to parquet and write it to stdout:
 # https://observablehq.com/framework/loaders
@@ -14,8 +13,11 @@ response = requests.get(
 with open('docs/data/final_sal.feather', 'wb') as file:
     file.write(response.content)
 
-feather_table = feather.read_table('docs/data/final_sal.feather')
-pq.write_table(feather_table, 'docs/data/temp_final_sal.parquet')
+# Use geopandas to read the feather file
+gdf = gpd.read_feather('docs/data/final_sal.feather')
+
+# Write the GeoDataFrame to parquet file
+gdf.to_parquet('docs/data/temp_final_sal.parquet')
 
 # read in binary mode
 with open('docs/data/temp_final_sal.parquet', 'rb') as file:
