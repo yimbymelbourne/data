@@ -10,13 +10,6 @@ export default {
     {
       name: "Walkability",
       path: "/walkability",
-    },
-    {
-      name: "Examples",
-      pages: [
-        {name: "Dashboard", path: "/examples/dashboard"},
-        {name: "Report", path: "/examples/report"}
-      ]
     }
   ],
 

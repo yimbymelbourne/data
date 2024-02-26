@@ -9,7 +9,7 @@ toc: false
 <!-- Load and transform the data -->
 
 ```js
-const launches = FileAttachment("data/launches.csv").csv({typed: true});
+const launches = FileAttachment("../data/launches.csv").csv({typed: true});
 ```
 
 <!-- A shared color scale for consistency, sorted by the number of launches -->
