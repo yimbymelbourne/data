@@ -1,0 +1,20 @@
+@import url("observablehq:default.css");
+@import url("observablehq:theme-cotton.css"); 
+/* extends existing theme ^ https://observablehq.com/framework/themes */
+
+/* https://observablehq.com/framework/css/color 
+--theme-foreground	 page foreground color
+--theme-background	 page background color
+--theme-background-alt	block background color
+--theme-foreground-alt	heading foreground color
+--theme-foreground-muted	secondary text foreground color
+--theme-foreground-faint	faint border color
+--theme-foreground-fainter	fainter border color
+--theme-foreground-faintest	faintest border color
+--theme-foreground-focus	emphasis foreground color
+*/
+:root {
+  --theme-foreground-focus: #10461B;
+  --theme-background: #FDFFEE;
+  --theme-background-alt: #fcfce7;
+}

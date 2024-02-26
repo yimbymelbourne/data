@@ -17,7 +17,7 @@ function dotPlot({ x, y, fill }) {
     grid: true,
     color: {
       legend: true,
-      scheme: "plasma",
+      scheme: "viridis",
     },
     marks: [
       Plot.dot(final_sa1_parquet, {
