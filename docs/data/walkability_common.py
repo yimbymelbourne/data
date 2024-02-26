@@ -11,7 +11,8 @@ def print_walkability_file_to_stdout(name, type: Literal["parquet", "geojson"]):
         allow_redirects=True)
 
     # write in binary mode
-    with open(f'temp/{name}.feather', 'wb') as file:
+    os.makedirs("temp", exist_ok=True)
+    with open(f'temp/{name}.feather', 'wb+') as file:
         file.write(response.content)
 
     # Use geopandas to read the feather file
