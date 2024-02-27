@@ -123,6 +123,3 @@ ${geoPlot()}
 </div>
 
 ${leafletMap()}
-
-
-

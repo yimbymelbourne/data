@@ -49,12 +49,6 @@ toc: false
   <h2>A home for our data articles, visualisations and analyses.</h2>
 </div>
 
-<div class="grid grid-cols-2">
-  <div class="card">
-    <a href="/walkability">Walkability</a>
-  </div>
-</div>
-
 ---
 
 ## Meta
