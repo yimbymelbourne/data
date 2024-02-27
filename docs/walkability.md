@@ -9,10 +9,11 @@ const final_sal_parquet = FileAttachment("data/final_sal.parquet").parquet();
 const final_sat_geojson = FileAttachment("data/final_sal.geojson").json();
 const final_sa1_parquet = FileAttachment("data/final_sa1.parquet").parquet();
 // const final_sa1_geojson = FileAttachment("data/final_sa1.geojson").json();
+const final_nodes = FileAttachment("data/final_nodes.parquet").parquet();
 ```
 
 ```js
-function dotPlot({ x, y, fill }) {
+function plotMetrics({ x, y, fill }) {
   return Plot.plot({
     grid: true,
     color: {
@@ -31,8 +32,91 @@ function dotPlot({ x, y, fill }) {
 }
 ```
 
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${plotMetrics({
+  x: "bar or pub - within 500m",
+  y: "park area - within 500m",
+  fill: "median_rent_weekly",
+})}
+</div>
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${plotMetrics({
+  x: "median_rent_weekly",
+  y: "cafe - within 500m",
+  fill: "average_household_size"
+})}
+</div>
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${plotMetrics({
+  x: "child care - within 2km",
+  y: "pct_owner_occupiers",
+  fill: "median_age" })}
+</div>
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${plotMetrics({
+  x: "pct_households_wo_cars",
+  y: "restaurant - within 1km",
+  fill: "pct_apartments",
+})}
+</div>
+
+
 ```js
-function geoPlot() {
+function plotMapScatter({ fill, reverse }) {
+  return Plot.plot({
+    aspectRatio: 1,
+    color: {
+      legend: true,
+      reverse,
+      scheme: "viridis",
+    },
+    marks: [
+      Plot.dot(final_nodes, { x: "x", y: "y", fill, opacity: 0.8 }),
+    ],
+  });
+}
+```
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${plotMapScatter({
+  fill: "library - closest",
+  reverse: true
+})}
+</div>
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${plotMapScatter({
+  fill: "cafe - closest",
+  reverse: true
+})}
+</div>
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${plotMapScatter({
+  fill: "grocery or supermarket - within 1km"
+})}
+</div>
+
+```js
+function plotWeeklyRents() {
   return Plot.plot({
     grid: true,
     aspectRatio: 1,
@@ -47,13 +131,29 @@ function geoPlot() {
         tip: { channels: { name: (d) => d.properties.geography_name } },
       }),
     ],
-  })
+  });
 }
 ```
 
 ```js
+const weeklyRentPlot = plotWeeklyRents()
+```
+
+<div class="card" style="max-width: 640px;">
+<h2>TODO</h2>
+<h3>TODO</h3>
+${weeklyRentPlot}
+</div>
+
+
+```js
 import * as L from "npm:leaflet";
-function leafletMap() {
+
+function leafletWeeklyRents() {
+
+
+  const colorScale = Plot.cellX(["apple", "apple", "orange", "pear", "orange"])
+
   const div = display(document.createElement("div"));
   div.style = "height: 400px;";
 
@@ -63,15 +163,14 @@ function leafletMap() {
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
     .addTo(map);
 
-  const style = {
-    "color": "#ff7800",
-    "weight": 5,
-    "opacity": 0.65,
-  };
+  L.geoJSON(final_sat_geojson, {
+     onEachFeature: function (feature, layer) {
+        // sync colors between plots
+        const color = weeklyRentPlot.scale("color").apply(feature.properties.median_rent_weekly);
+        layer.setStyle({ color }); 
+    }
+  }).addTo(map);
 
-  L.geoJSON(final_sat_geojson).addTo(map, {
-    style,
-  });
   return div;
 }
 ```
@@ -79,47 +178,7 @@ function leafletMap() {
 <div class="card" style="max-width: 640px;">
 <h2>TODO</h2>
 <h3>TODO</h3>
-${dotPlot({
-  x: "bar or pub - within 500m",
-  y: "park area - within 500m",
-  fill: "median_rent_weekly",
-})}
+${Plot.legend({ color: weeklyRentPlot.scale("color"), label: "Median rent, weekly ($)"})}
+${leafletWeeklyRents()}
 </div>
 
-<div class="card" style="max-width: 640px;">
-<h2>TODO</h2>
-<h3>TODO</h3>
-${dotPlot({ 
-  x: "median_rent_weekly", 
-  y: "cafe - within 500m", 
-  fill: "average_household_size" 
-})}
-</div>
-
-<div class="card" style="max-width: 640px;">
-<h2>TODO</h2>
-<h3>TODO</h3>
-${dotPlot({ 
-  x: "child care - within 2km", 
-  y: "pct_owner_occupiers", 
-  fill: "median_age" })}
-</div>
-
-<div class="card" style="max-width: 640px;">
-<h2>TODO</h2>
-<h3>TODO</h3>
-${dotPlot({
-  x: "pct_households_wo_cars",
-  y: "restaurant - within 1km",
-  fill: "pct_apartments",
-})}
-</div>
-
-
-<div class="card" style="max-width: 640px;">
-<h2>TODO</h2>
-<h3>TODO</h3>
-${geoPlot()}
-</div>
-
-${leafletMap()}
