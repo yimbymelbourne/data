@@ -1,3 +1,6 @@
-from walkability_common import print_walkability_file_to_stdout
+from loaders import print_feather_file_to_stdout
 
-print_walkability_file_to_stdout("final_sal", type="parquet")
+name = "final_nodes"
+url = 'https://s3.ap-southeast-2.amazonaws.com/tompisel.com/collection/final_nodes.feather'
+
+print_feather_file_to_stdout(name=name, url=url, type="parquet", sample=1000)

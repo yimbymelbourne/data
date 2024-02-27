@@ -1,3 +1,6 @@
-from walkability_common import print_walkability_file_to_stdout
+from loaders import print_feather_file_to_stdout
 
-print_walkability_file_to_stdout("final_sal", type="geojson")
+name = "final_sal"
+url = f"https://github.com/tpisel/walkability/raw/master/data/final/{name}.feather" 
+
+print_feather_file_to_stdout(name=name, url=url, type="geojson")
