@@ -2,7 +2,7 @@
 export default {
   // The project’s title; used in the sidebar and webpage titles.
   title: "YIMBY Melbourne Data",
-  header: "<img src='https://assets-global.website-files.com/64a530aa67ffbab04c9c39ab/64b27aa3f510a34fa5003e6a_logo_inter.svg' height=50/>",
+  header: "<a href='https://www.yimby.melbourne/'><img src='https://assets-global.website-files.com/64a530aa67ffbab04c9c39ab/64b27aa3f510a34fa5003e6a_logo_inter.svg' height=50/></a>",
   // The pages and sections in the sidebar. If you don’t specify this option,
   // all pages will be listed in alphabetical order. Listing pages explicitly
   // lets you organize them into sections and have unlisted pages.
