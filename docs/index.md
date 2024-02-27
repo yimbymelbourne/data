@@ -49,11 +49,6 @@ toc: false
   <h2>A home for our data articles, visualisations and analyses.</h2>
 </div>
 
----
-
-## Meta
-
-
 <div class="grid grid-cols-4">
   <div class="card">
    <a href="https://github.com/yimbymelbourne/data/blob/main/CONTRIBUTING.md">Contributing <span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
