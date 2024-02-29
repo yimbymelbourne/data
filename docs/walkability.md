@@ -5,23 +5,27 @@ title: Walkability
 # Walkability
 
 ```js
-const final_sal_parquet = FileAttachment("data/final_sal.parquet").parquet();
-const final_sat_geojson = FileAttachment("data/final_sal.geojson").json();
-const final_sa1_parquet = FileAttachment("data/final_sa1.parquet").parquet();
-// const final_sa1_geojson = FileAttachment("data/final_sa1.geojson").json();
-const final_nodes = FileAttachment("data/final_nodes.parquet").parquet();
+import * as duckdb from "npm:@duckdb/duckdb-wasm";
+
+const db = await DuckDBClient.of();
+const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
+const walkability_by_SAL = FileAttachment("data/walkability_by_SAL.geojson").json();
 ```
 
 ```js
-function plotMetrics({ x, y, fill }) {
+async function plotMetrics({ x, y, fill }) {
+  const columns = ["geography_name", x, y, fill]
+  const columnsCsv = columns.map((col) => `"${col}"`).join(", ") + ",";
+  const walkability_by_SA1 = await db.query(`SELECT ${columnsCsv} FROM read_parquet('https://tompisel.com/data/walkability_by_SA1.parquet')`);
+
   return Plot.plot({
     grid: true,
     color: {
       legend: true,
-      scheme: "viridis",
+      scheme: "turbo",
     },
     marks: [
-      Plot.dot(final_sa1_parquet, {
+      Plot.dot(walkability_by_SA1, {
         x,
         y,
         fill,
@@ -75,15 +79,16 @@ ${plotMetrics({
 
 ```js
 function plotMapScatter({ fill, reverse }) {
+
   return Plot.plot({
     aspectRatio: 1,
     color: {
       legend: true,
       reverse,
-      scheme: "viridis",
+      scheme: "turbo",
     },
     marks: [
-      Plot.dot(final_nodes, { x: "x", y: "y", fill, opacity: 0.8 }),
+      Plot.dot(walkability_by_node, { x: "x", y: "y", fill, opacity: 0.8 }),
     ],
   });
 }
@@ -123,10 +128,10 @@ function plotWeeklyRents() {
     color: {
       legend: true,
       label: "Median rent, weekly ($)",
-      scheme: "viridis",
+      scheme: "turbo",
     },
     marks: [
-      Plot.geo(final_sat_geojson, {
+      Plot.geo(walkability_by_SAL, {
         fill: (d) => d.properties.median_rent_weekly,
         tip: { channels: { name: (d) => d.properties.geography_name } },
       }),
@@ -163,7 +168,7 @@ function leafletWeeklyRents() {
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
     .addTo(map);
 
-  L.geoJSON(final_sat_geojson, {
+  L.geoJSON(walkability_by_SAL, {
      onEachFeature: function (feature, layer) {
         // sync colors between plots
         const color = weeklyRentPlot.scale("color").apply(feature.properties.median_rent_weekly);

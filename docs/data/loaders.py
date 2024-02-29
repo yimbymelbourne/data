@@ -4,21 +4,19 @@ import sys
 import geopandas as gpd
 from typing import Literal
 
-
-def print_feather_file_to_stdout(*, 
+def print_parquet_file_to_stdout(*, 
   name: str, 
-  url: str, 
-  type: Literal["parquet", "geojson"],
+  url: str,
+type: Literal["parquet", "geojson"],
   sample = None):
     response = requests.get(url, allow_redirects=True)
 
     # write in binary mode
     os.makedirs("temp", exist_ok=True)
-    with open(f'temp/{name}.feather', 'wb+') as file:
+    with open(f'temp/{name}.parquet', 'wb+') as file:
         file.write(response.content)
 
-    # Use geopandas to read the feather file
-    gdf = gpd.read_feather(f'temp/{name}.feather')
+    gdf = gpd.read_parquet(f'temp/{name}.parquet')
 
     if sample:
         gdf = gdf.sample(sample)
