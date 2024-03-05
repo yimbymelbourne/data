@@ -10,6 +10,9 @@ import * as duckdb from "npm:@duckdb/duckdb-wasm";
 const db = await DuckDBClient.of();
 const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
 const walkability_by_SAL = FileAttachment("data/walkability_by_SAL.geojson").json();
+
+// TODO(mjbo): Try this again when duckdb-wasm gets a version bump
+// db.query('INSTALL spatial').then(x => db.query('LOAD spatial'))
 ```
 
 ```js
@@ -88,7 +91,13 @@ function plotMapScatter({ fill, reverse }) {
       scheme: "turbo",
     },
     marks: [
-      Plot.dot(walkability_by_node, { x: "x", y: "y", fill, opacity: 0.8 }),
+      Plot.dot(walkability_by_node, { 
+        x: "x", 
+        y: "y", 
+        fill, 
+        opacity: 0.8,
+        tip: { channels: { name: "geography_name" } } 
+      }),
     ],
   });
 }
@@ -155,10 +164,6 @@ ${weeklyRentPlot}
 import * as L from "npm:leaflet";
 
 function leafletWeeklyRents() {
-
-
-  const colorScale = Plot.cellX(["apple", "apple", "orange", "pear", "orange"])
-
   const div = display(document.createElement("div"));
   div.style = "height: 400px;";
 
