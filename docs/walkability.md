@@ -1,5 +1,7 @@
 ---
 title: Walkability
+sql:
+  walkability_by_node: "data/walkability_by_node.parquet"
 ---
 
 # Walkability
@@ -11,8 +13,9 @@ const db = await DuckDBClient.of();
 const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
 const walkability_by_SAL = FileAttachment("data/walkability_by_SAL.geojson").json();
 
-// TODO(mjbo): Try this again when duckdb-wasm gets a version bump
+//TODO(mjbo): Try this again when duckdb-wasm gets a version bump
 // db.query('INSTALL spatial').then(x => db.query('LOAD spatial'))
+// db.query('LOAD spatial');
 ```
 
 ```js
@@ -79,6 +82,10 @@ ${plotMetrics({
 })}
 </div>
 
+
+```sql
+SELECT * FROM walkability_by_node LIMIT 10
+```
 
 ```js
 function plotMapScatter({ fill, reverse }) {
