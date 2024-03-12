@@ -1,51 +1,19 @@
 ---
 title: Walkability
-sql:
-  walkability_by_node: "data/walkability_by_node.parquet"
-  walkability_by_SAL: "data/walkability_by_SAL.parquet"
 ---
 
 # Walkability
 
 ```js
-const db = await DuckDBClient.of({
-  walkability_by_node: FileAttachment("data/walkability_by_node.parquet"),
-  walkability_by_SAL: FileAttachment("data/walkability_by_SAL.parquet"),
-  walkability_by_SA1: FileAttachment("data/walka bility_by_SA1.parquet")
-});
-```
-
-```js
-// spatial only works under version 1.28.1-dev106.0
-// right now, it's pinned to 1.28.0 for unknown reasons:
-// https://github.com/observablehq/framework/blob/0b40787072ee245a54dbafc9a0d24d9a97ae2c17/src/javascript/imports.ts#L346
-// when it's inevitibly bumped, the following commands will start working
-await db.query('INSTALL spatial');
-await db.query('LOAD spatial');
-
-const walkability_by_SAL = await db.query(`
-  SELECT ST_AsGeoJSON(ST_GeomFromWKB(geometry)) as geojson, *
-  FROM walkability_by_SAL
-`);
-
-const walkability_by_SAL_feature_collection = {
-  type: "FeatureCollection",
-  features: walkability_by_SAL.map(({ geojson, ...properties }) => ({
-    type: "Feature",
-    geometry: JSON.parse(geojson),
-    properties,
-  })),
-};
+const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
+const walkability_by_SAL = FileAttachment("data/walkability_by_SAL.geojson").json();
+const walkability_by_SA1 = FileAttachment("data/walkability_by_SA1.parquet").parquet();
 ```
 
 ## Walkability by SA1
 
 ```js
 async function plotMetrics({ x, y, fill }) {
-  const columns = ["geography_name", x, y, fill]
-  const columnsCsv = columns.map((col) => `"${col}"`).join(", ") + ",";
-  const walkability_by_SA1 = await db.query(`SELECT ${columnsCsv} FROM walkability_by_SA1`);
-
   return Plot.plot({
     grid: true,
     color: {
@@ -106,17 +74,8 @@ ${plotMetrics({
 
 ## Walkability by node
 
-```sql
-SELECT * FROM walkability_by_node LIMIT 10
-```
-
 ```js
-async function plotMapScatter({ fill, reverse }) {
-  const walkability_by_node = await db.query(`
-    SELECT x, y, "${fill}" as "${fill}"
-    FROM walkability_by_node
-  `);
-
+function plotMapScatter({ fill, reverse }) {
   return Plot.plot({
     aspectRatio: 1,
     color: {
@@ -139,7 +98,7 @@ async function plotMapScatter({ fill, reverse }) {
 <div class="card" style="max-width: 640px;">
 <h2>TODO</h2>
 <h3>TODO</h3>
-${await plotMapScatter({
+${plotMapScatter({
   fill: "library - closest",
   reverse: true
 })}
@@ -148,7 +107,7 @@ ${await plotMapScatter({
 <div class="card" style="max-width: 640px;">
 <h2>TODO</h2>
 <h3>TODO</h3>
-${await plotMapScatter({
+${plotMapScatter({
   fill: "cafe - closest",
   reverse: true
 })}
@@ -157,16 +116,12 @@ ${await plotMapScatter({
 <div class="card" style="max-width: 640px;">
 <h2>TODO</h2>
 <h3>TODO</h3>
-${await plotMapScatter({
+${plotMapScatter({
   fill: "grocery or supermarket - within 1km"
 })}
 </div>
 
 ## Walkability by SAL
-
-```sql
-SELECT * FROM walkability_by_SAL LIMIT 10
-```
 
 ```js
 function plotWeeklyRents() {
@@ -179,7 +134,7 @@ function plotWeeklyRents() {
       scheme: "turbo",
     },
     marks: [
-      Plot.geo(walkability_by_SAL_feature_collection, {
+      Plot.geo(walkability_by_SAL, {
         fill: (d) => d.properties.median_rent_weekly,
         tip: { channels: { name: (d) => d.properties.geography_name } },
       }),
@@ -217,7 +172,7 @@ function leafletWeeklyRents() {
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
     .addTo(map);
 
-  L.geoJSON(walkability_by_SAL_feature_collection, {
+  L.geoJSON(walkability_by_SAL, {
      onEachFeature: function (feature, layer) {
         // sync colors between plots
         const color = weeklyRentPlot.scale("color").apply(feature.properties.median_rent_weekly);
