@@ -39,7 +39,7 @@ async function plotMetrics({ x, y, fill }) {
 ```
 
 ```js
-// borrowed from https://uwdata.github.io/mosaic/examples/splom.html
+// adapted from https://uwdata.github.io/mosaic/examples/splom.html
 const $brush = vg.Selection.single();
 
 const independentVariables = [
@@ -57,7 +57,8 @@ const dependentVariables = [
   "pct_apartments",
 ]
 
-const makeSubplot = (x, y) => {
+
+const makeFacet = (x, y) => {
   return vg.plot(
     // https://uwdata.github.io/mosaic/api/vgplot/attributes.html
     vg.frame({stroke: "#ccc"}),
@@ -67,14 +68,15 @@ const makeSubplot = (x, y) => {
     ),
     vg.intervalXY({as: $brush}),
     vg.highlight({by: $brush, opacity: 0.1}),
+    vg.xLabelAnchor("center"),
+    vg.yLabelAnchor("center"),
   )
 }
 
 const plotSA1Splom = () => vg.vconcat(...dependentVariables.map(d =>
-  vg.hconcat(...independentVariables.map(i => makeSubplot(i, d)))
+  vg.hconcat(...independentVariables.map(i => makeFacet(i, d)))
 ))
 ```
-
 
 <div class="card">
 <h2>TODO</h2>
