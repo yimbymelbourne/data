@@ -89,16 +89,13 @@ const makeFacet = (x, y) => {
   )
 }
 
-const plotSA1Matrix = () => vg.vconcat(...dependentVariables.map(d =>
+const plotSA1Splom = () => vg.vconcat(...dependentVariables.map(d =>
   vg.hconcat(...independentVariables.map(i => makeFacet(i, d)))
 ))
 ```
 
-```js
-plotSA1Matrix()
-```
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotMetrics({
@@ -108,7 +105,7 @@ ${plotMetrics({
 })}
 </div>
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotMetrics({
@@ -118,7 +115,7 @@ ${plotMetrics({
 })}
 </div>
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotMetrics({
@@ -127,7 +124,7 @@ ${plotMetrics({
   fill: "median_age" })}
 </div>
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotMetrics({
@@ -135,6 +132,12 @@ ${plotMetrics({
   y: "restaurant - within 1km",
   fill: "pct_apartments",
 })}
+</div>
+
+<div class="card">
+<h2>SPLOM</h2>
+<h3>TODO</h3>
+${plotSA1Splom()}
 </div>
 
 
@@ -161,7 +164,7 @@ function plotMapScatter({ fill, reverse }) {
 }
 ```
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotMapScatter({
@@ -170,7 +173,7 @@ ${plotMapScatter({
 })}
 </div>
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotMapScatter({
@@ -179,7 +182,7 @@ ${plotMapScatter({
 })}
 </div>
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotMapScatter({
@@ -211,7 +214,7 @@ function plotWeeklyRents() {
 const weeklyRentPlot = plotWeeklyRents();
 ```
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${weeklyRentPlot}
@@ -250,7 +253,7 @@ function leafletWeeklyRents() {
 }
 ```
 
-<div class="card" style="max-width: 640px;">
+<div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
 ${plotWeeklyRentLegend()}
