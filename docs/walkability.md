@@ -1,5 +1,7 @@
 ---
 title: Walkability
+sql: 
+  walkability_by_SA1: "data/walkability_by_SA1.parquet"
 ---
 
 # Walkability
@@ -11,6 +13,10 @@ const walkability_by_SA1 = FileAttachment("data/walkability_by_SA1.parquet").par
 ```
 
 ## Walkability by SA1
+
+```sql
+SELECT * FROM walkability_by_SA1 LIMIT 5
+```
 
 ```js
 async function plotMetrics({ x, y, fill }) {
@@ -30,6 +36,66 @@ async function plotMetrics({ x, y, fill }) {
     ],
   });
 }
+```
+
+```js
+// borrowed from https://uwdata.github.io/mosaic/examples/splom.html
+const $brush = vg.Selection.single();
+// https://uwdata.github.io/mosaic/api/vgplot/attributes.html
+const defaultAttributes = [
+  // vg.xTicks(3),
+  // vg.yTicks(4),
+  // vg.xDomain(vg.Fixed),
+  // vg.yDomain(vg.Fixed),
+  // vg.colorDomain(vg.Fixed),
+  // vg.marginTop(5),
+  // vg.marginBottom(10),
+  // vg.marginLeft(10),
+  // vg.marginRight(5),
+  // vg.xAxis(null),
+  // vg.yAxis(null),
+  vg.xLabelAnchor("center"),
+  vg.yLabelAnchor("center"),
+  // vg.xTickFormat("s"),
+  // vg.yTickFormat("s"),
+];
+
+const independentVariables = [
+  "restaurant - within 1km",
+  "grocery or supermarket - within 1km",
+  "cafe - within 1km",
+  "bar or pub - within 1km",
+]
+
+const dependentVariables = [
+  "median_rent_weekly",
+  "pct_households_wo_cars",
+  "pct_houses",
+  "pct_owner_occupiers",
+  "pct_apartments",
+]
+
+
+const makeFacet = (x, y) => {
+  return vg.plot(
+    vg.frame({stroke: "#ccc"}),
+    vg.dot(
+      vg.from("walkability_by_SA1"),
+      {x, y, fill: "median_rent_weekly", r: 2}
+    ),
+    vg.intervalXY({as: $brush}),
+    vg.highlight({by: $brush, opacity: 0.1}),
+    ...defaultAttributes
+  )
+}
+
+const plotSA1Matrix = () => vg.vconcat(...dependentVariables.map(d =>
+  vg.hconcat(...independentVariables.map(i => makeFacet(i, d)))
+))
+```
+
+```js
+plotSA1Matrix()
 ```
 
 <div class="card" style="max-width: 640px;">
