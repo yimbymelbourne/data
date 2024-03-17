@@ -41,24 +41,6 @@ async function plotMetrics({ x, y, fill }) {
 ```js
 // borrowed from https://uwdata.github.io/mosaic/examples/splom.html
 const $brush = vg.Selection.single();
-// https://uwdata.github.io/mosaic/api/vgplot/attributes.html
-const defaultAttributes = [
-  // vg.xTicks(3),
-  // vg.yTicks(4),
-  // vg.xDomain(vg.Fixed),
-  // vg.yDomain(vg.Fixed),
-  // vg.colorDomain(vg.Fixed),
-  // vg.marginTop(5),
-  // vg.marginBottom(10),
-  // vg.marginLeft(10),
-  // vg.marginRight(5),
-  // vg.xAxis(null),
-  // vg.yAxis(null),
-  vg.xLabelAnchor("center"),
-  vg.yLabelAnchor("center"),
-  // vg.xTickFormat("s"),
-  // vg.yTickFormat("s"),
-];
 
 const independentVariables = [
   "restaurant - within 1km",
@@ -75,9 +57,9 @@ const dependentVariables = [
   "pct_apartments",
 ]
 
-
-const makeFacet = (x, y) => {
+const makeSubplot = (x, y) => {
   return vg.plot(
+    // https://uwdata.github.io/mosaic/api/vgplot/attributes.html
     vg.frame({stroke: "#ccc"}),
     vg.dot(
       vg.from("walkability_by_SA1"),
@@ -85,12 +67,11 @@ const makeFacet = (x, y) => {
     ),
     vg.intervalXY({as: $brush}),
     vg.highlight({by: $brush, opacity: 0.1}),
-    ...defaultAttributes
   )
 }
 
 const plotSA1Splom = () => vg.vconcat(...dependentVariables.map(d =>
-  vg.hconcat(...independentVariables.map(i => makeFacet(i, d)))
+  vg.hconcat(...independentVariables.map(i => makeSubplot(i, d)))
 ))
 ```
 
