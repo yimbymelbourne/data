@@ -73,14 +73,28 @@ const makeFacet = (x, y) => {
   )
 }
 
-const plotSA1Splom = () => vg.vconcat(...dependentVariables.map(d =>
-  vg.hconcat(...independentVariables.map(i => makeFacet(i, d)))
+const plotSA1Splom = () => vg.vconcat(
+  ...dependentVariables.map(d => vg.hconcat(...independentVariables.map(i => makeFacet(i, d)))
 ))
+```
+
+```js
+function plotSA1WeeklyRentLegend() {
+  const rent = Plot.dotX(walkability_by_SA1, {
+    x: 0,
+    fill: "median_rent_weekly",
+  }).plot()
+  return Plot.legend({
+    color: rent.scale("color"),
+    label: "Median rent, weekly ($)"
+  })
+}
 ```
 
 <div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
+${plotSA1WeeklyRentLegend()}
 ${plotMetrics({
   x: "bar or pub - within 500m",
   y: "park area - within 500m",
@@ -120,6 +134,7 @@ ${plotMetrics({
 <div class="card">
 <h2>SPLOM</h2>
 <h3>TODO</h3>
+${plotSA1WeeklyRentLegend()}
 ${plotSA1Splom()}
 </div>
 
@@ -207,7 +222,7 @@ ${weeklyRentPlot}
 ```js
 import * as L from "npm:leaflet";
 
-function plotWeeklyRentLegend() {
+function plotWeeklyRentSALLegend() {
   return Plot.legend({
     color: weeklyRentPlot.scale("color"),
     label: "Median rent, weekly ($)"
@@ -239,7 +254,7 @@ function leafletWeeklyRents() {
 <div class="card">
 <h2>TODO</h2>
 <h3>TODO</h3>
-${plotWeeklyRentLegend()}
+${plotWeeklyRentSALLegend()}
 ${leafletWeeklyRents()}
 </div>
 
