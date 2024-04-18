@@ -1,17 +1,19 @@
 ---
 title: Walkability
 sql: 
-  walkability_by_SA1: "data/walkability_by_SA1.parquet"
   walkability_by_node: "data/walkability_by_node.parquet"
+  walkability_by_SA1: "data/walkability_by_SA1.parquet"
 ---
 
 # Walkability
 
 ```js
 const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
-const walkability_by_SAL = FileAttachment("data/walkability_by_SAL.geojson").json()
 const walkability_by_SA1 = FileAttachment("data/walkability_by_SA1.parquet").parquet();
+
+const walkability_by_node_geojson = FileAttachment("data/walkability_by_node.geojson").json();
 const walkability_by_SA1_geojson = FileAttachment("data/walkability_by_SA1.geojson").json()
+const walkability_by_SAL_geojson = FileAttachment("data/walkability_by_SAL.geojson").json()
 ```
 
 ## Walkability by SA1
@@ -185,6 +187,47 @@ Plot.plot({
 })
 ```
 
+```js
+Plot.plot({
+    grid: true,
+    aspectRatio: 1,
+    width: 1000,
+    color: {
+      domain: [0, 5000],
+      legend: true,
+      scheme: "turbo",
+      label: "Max distance"
+    },
+    marks: [
+      Plot.geo(walkability_by_node_geojson, {
+        fill: (d) => takeMax(d.properties),
+        tip: true
+      }),
+    ],
+  })
+```
+
+## Walkability by SA1 again
+
+```js
+Plot.plot({
+    grid: true,
+    aspectRatio: 1,
+    width: 1000,
+    color: {
+      legend: true,
+      label: "Median rent, weekly ($)",
+      scheme: "turbo",
+    },
+    marks: [
+      Plot.geo(walkability_by_SA1_geojson, {
+        fill: (d) => d.properties.median_rent_weekly,
+        tip: { channels: { name: (d) => d.properties.geography_name } },
+      }),
+    ],
+  })
+```
+
 ## Walkability by SAL
 
 ```js
@@ -192,13 +235,14 @@ function plotWeeklyRents() {
   return Plot.plot({
     grid: true,
     aspectRatio: 1,
+    width: 1000,
     color: {
       legend: true,
       label: "Median rent, weekly ($)",
       scheme: "turbo",
     },
     marks: [
-      Plot.geo(walkability_by_SAL, {
+      Plot.geo(walkability_by_SAL_geojson, {
         fill: (d) => d.properties.median_rent_weekly,
         tip: { channels: { name: (d) => d.properties.geography_name } },
       }),
@@ -234,7 +278,7 @@ function leafletWeeklyRents() {
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
     .addTo(map);
 
-  L.geoJSON(walkability_by_SAL, {
+  L.geoJSON(walkability_by_SAL_geojson, {
      onEachFeature: function (feature, layer) {
         // sync colors between plots
         const color = weeklyRentPlot.scale("color").apply(feature.properties.median_rent_weekly);
