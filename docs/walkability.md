@@ -148,7 +148,7 @@ const consideredKeys = view(
   Inputs.checkbox(closestKeys, {
     sort: true,
     unique: true,
-    value: "museum - closest",
+    value: ["restaurant - closest", "grocery or supermarket - closest", "cafe - closest", "bar or pub - closest", "park area - closest", "school - closest", "child care - closest", "medical facility - closest"],
     label: "Choose amenities you care about:"
   })
 );
@@ -382,7 +382,7 @@ const deckInstance = new DeckGL({
       id: "nodes",
       data: [...walkability_by_node_geojson.features],
       radius: 100,
-      elevationScale: 0.5,
+      elevationScale: 0.2,
       opacity: 0.5,
       extruded: true,
       coverage: 1,
