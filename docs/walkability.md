@@ -166,29 +166,6 @@ function takeMax(node) {
 
 ```js
 Plot.plot({
-  title: "TODO title",
-  aspectRatio: 1,
-  width: 1000,
-  color: {
-    domain: [0, 5000],
-    legend: true,
-    scheme: "turbo",
-    label: "Max distance"
-  },
-  marks: [
-    Plot.dot(walkability_by_node, { 
-      x: "x", 
-      y: "y", 
-      fill: takeMax, 
-      opacity: 0.8,
-      tip: true
-    }),
-  ],
-})
-```
-
-```js
-Plot.plot({
     grid: true,
     aspectRatio: 1,
     width: 1000,
