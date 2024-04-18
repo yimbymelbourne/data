@@ -270,10 +270,7 @@ function leafletWeeklyRents() {
   L.geoJSON(walkability_by_node_geojson, {
      pointToLayer: function (feature, latlng) {
         // sync colors between plots
-        console.log(feature.properties)
-        console.log(takeMax(feature.properties))
         const color = distancePlot.scale("color").apply(takeMax(feature.properties));
-        console.log(color)
 
         const geojsonMarkerOptions = {
             radius: 8,
@@ -297,3 +294,81 @@ ${plotWeeklyRentSALLegend()}
 ${leafletWeeklyRents()}
 </div>
 
+## deck.gl
+
+```js
+import deck from "npm:deck.gl";
+const {DeckGL, AmbientLight, GeoJsonLayer, HexagonLayer, LightingEffect, PointLight} = deck;
+```
+
+```js
+const topo = import.meta.resolve("npm:visionscarto-world-atlas/world/50m.json");
+const world = fetch(topo).then((response) => response.json());
+const countries = world.then((world) => topojson.feature(world, world.objects.countries));
+```
+
+<div class="card" style="margin: 0 -1rem;">
+
+<figure style="max-width: none; position: relative;">
+  <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
+  <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotWeeklyRentSALLegend()}</div>
+  <figcaption>Data: <a href="">TODO</a></figcaption>
+</figure>
+
+</div>
+
+```js
+function getTooltip({object}) {
+  if (!object) return null;
+  const [lng, lat] = object.position;
+  const count = object.points.length;
+  return `latitude: ${lat.toFixed(2)}
+    longitude: ${lng.toFixed(2)}
+    ${count} collisions`;
+}
+
+const effects = [
+  new LightingEffect({
+    ambientLight: new AmbientLight({color: [255, 255, 255], intensity: 1.0}),
+    pointLight: new PointLight({color: [255, 255, 255], intensity: 0.8, position: [-0.144528, 49.739968, 80000]}),
+    pointLight2: new PointLight({color: [255, 255, 255], intensity: 0.8, position: [-3.807751, 54.104682, 8000]})
+  })
+];
+
+const initialViewState = {
+  longitude: -2,
+  latitude: 53.5,
+  zoom: 5.7,
+  minZoom: 5,
+  maxZoom: 15,
+  pitch: 40.5,
+  bearing: -5
+};
+
+const deckInstance = new DeckGL({
+  container,
+  initialViewState,
+  getTooltip,
+  effects,
+  controller: true
+});
+
+
+deckInstance.setProps({
+  layers: [
+    new GeoJsonLayer({
+      id: "base-map",
+      data: countries,
+      lineWidthMinPixels: 1,
+      getLineColor: [60, 60, 60],
+      getFillColor: [9, 16, 29]
+    })
+  ]
+});
+
+// clean up if this code re-runs
+invalidation.then(() => {
+  deckInstance.finalize();
+  container.innerHTML = "";
+});
+```
