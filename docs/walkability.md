@@ -165,7 +165,7 @@ function takeMax(node) {
 ```
 
 ```js
-Plot.plot({
+const distancePlot = Plot.plot({
     grid: true,
     aspectRatio: 1,
     width: 1000,
@@ -182,6 +182,8 @@ Plot.plot({
       }),
     ],
   })
+
+view(distancePlot)
 ```
 
 ## Walkability by SA1 again
@@ -192,9 +194,10 @@ Plot.plot({
     aspectRatio: 1,
     width: 1000,
     color: {
+      domain: [0, 1200],
       legend: true,
       label: "Median rent, weekly ($)",
-      scheme: "turbo",
+      scheme: "plasma",
     },
     marks: [
       Plot.geo(walkability_by_SA1_geojson, {
@@ -214,9 +217,10 @@ function plotWeeklyRents() {
     aspectRatio: 1,
     width: 1000,
     color: {
+      domain: [0, 1200],
       legend: true,
       label: "Median rent, weekly ($)",
-      scheme: "turbo",
+      scheme: "plasma",
     },
     marks: [
       Plot.geo(walkability_by_SAL_geojson, {
@@ -247,7 +251,7 @@ function plotWeeklyRentSALLegend() {
 
 function leafletWeeklyRents() {
   const div = display(document.createElement("div"));
-  div.style = "height: 400px;";
+  div.style = "height: 800px;";
 
   const map = L.map(div)
     .setView([-37.8136, 144.9631], 13);
@@ -255,11 +259,32 @@ function leafletWeeklyRents() {
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
     .addTo(map);
 
-  L.geoJSON(walkability_by_SAL_geojson, {
+  L.geoJSON(walkability_by_SA1_geojson, {
      onEachFeature: function (feature, layer) {
         // sync colors between plots
         const color = weeklyRentPlot.scale("color").apply(feature.properties.median_rent_weekly);
         layer.setStyle({ color }); 
+    }
+  }).addTo(map);
+
+  L.geoJSON(walkability_by_node_geojson, {
+     pointToLayer: function (feature, latlng) {
+        // sync colors between plots
+        console.log(feature.properties)
+        console.log(takeMax(feature.properties))
+        const color = distancePlot.scale("color").apply(takeMax(feature.properties));
+        console.log(color)
+
+        const geojsonMarkerOptions = {
+            radius: 8,
+            fillColor: color,
+            color: color,
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+
+        return L.circleMarker(latlng, geojsonMarkerOptions);
     }
   }).addTo(map);
 
