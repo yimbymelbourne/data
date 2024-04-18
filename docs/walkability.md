@@ -148,7 +148,7 @@ const consideredKeys = view(
   Inputs.checkbox(closestKeys, {
     sort: true,
     unique: true,
-    // value: "B",
+    value: "museum - closest",
     label: "Choose amenities you care about:"
   })
 );
@@ -238,6 +238,9 @@ const weeklyRentPlot = plotWeeklyRents();
 ${weeklyRentPlot}
 </div>
 
+```js
+const DEFAULT_VIEWPORT_LAT_LON = [-37.8136, 144.9631];
+```
 
 ```js
 import * as L from "npm:leaflet";
@@ -254,7 +257,7 @@ function leafletWeeklyRents() {
   div.style = "height: 800px;";
 
   const map = L.map(div)
-    .setView([-37.8136, 144.9631], 13);
+    .setView(DEFAULT_VIEWPORT_LAT_LON, 13);
 
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
     .addTo(map);
@@ -298,10 +301,39 @@ ${leafletWeeklyRents()}
 
 ```js
 import deck from "npm:deck.gl";
+import mapboxgl from "npm:mapbox-gl";
+import Color from "npm:color-js";
 const {DeckGL, AmbientLight, GeoJsonLayer, HexagonLayer, LightingEffect, PointLight} = deck;
 ```
 
+
 ```js
+const COLOR_RANGE = [
+  [1, 152, 189],
+  [73, 227, 206],
+  [216, 254, 181],
+  [254, 237, 177],
+  [254, 173, 84],
+  [209, 55, 78]
+];
+
+const colorLegend = Plot.plot({
+  margin: 0,
+  marginTop: 20,
+  width: 180,
+  height: 35,
+  style: "color: white;",
+  x: {padding: 0, axis: null},
+  marks: [
+    Plot.cellX(COLOR_RANGE, {fill: ([r, g, b]) => `rgb(${r},${g},${b})`, inset: 0.5}),
+    Plot.text(["Fewer"], {frameAnchor: "top-left", dy: -12}),
+    Plot.text(["More"], {frameAnchor: "top-right", dy: -12})
+  ]
+});
+```
+
+```js
+// https://observablehq.com/@visionscarto/world-atlas-topojson#files
 const topo = import.meta.resolve("npm:visionscarto-world-atlas/world/50m.json");
 const world = fetch(topo).then((response) => response.json());
 const countries = world.then((world) => topojson.feature(world, world.objects.countries));
@@ -312,57 +344,79 @@ const countries = world.then((world) => topojson.feature(world, world.objects.co
 <figure style="max-width: none; position: relative;">
   <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
   <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotWeeklyRentSALLegend()}</div>
+  <div style="position: absolute; top: 4rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${colorLegend}</div>
   <figcaption>Data: <a href="">TODO</a></figcaption>
 </figure>
 
 </div>
 
 ```js
-function getTooltip({object}) {
-  if (!object) return null;
-  const [lng, lat] = object.position;
-  const count = object.points.length;
-  return `latitude: ${lat.toFixed(2)}
-    longitude: ${lng.toFixed(2)}
-    ${count} collisions`;
-}
-
-const effects = [
-  new LightingEffect({
-    ambientLight: new AmbientLight({color: [255, 255, 255], intensity: 1.0}),
-    pointLight: new PointLight({color: [255, 255, 255], intensity: 0.8, position: [-0.144528, 49.739968, 80000]}),
-    pointLight2: new PointLight({color: [255, 255, 255], intensity: 0.8, position: [-3.807751, 54.104682, 8000]})
-  })
-];
-
-const initialViewState = {
-  longitude: -2,
-  latitude: 53.5,
-  zoom: 5.7,
-  minZoom: 5,
-  maxZoom: 15,
-  pitch: 40.5,
-  bearing: -5
-};
-
 const deckInstance = new DeckGL({
   container,
-  initialViewState,
-  getTooltip,
-  effects,
-  controller: true
-});
-
-
-deckInstance.setProps({
-  layers: [
-    new GeoJsonLayer({
-      id: "base-map",
-      data: countries,
-      lineWidthMinPixels: 1,
-      getLineColor: [60, 60, 60],
-      getFillColor: [9, 16, 29]
+  initialViewState: {
+    longitude: DEFAULT_VIEWPORT_LAT_LON[1],
+    latitude: DEFAULT_VIEWPORT_LAT_LON[0],
+    zoom: 13,
+    minZoom: 5,
+    maxZoom: 15,
+    pitch: 40.5,
+    bearing: -5
+  },
+  // getTooltip: ({ object}) => {
+  //   if (!object) return null;
+  //   const [lng, lat] = object.position;
+  //   const count = object.points.length;
+  //   return `latitude: ${lat.toFixed(2)}
+  //     longitude: ${lng.toFixed(2)}
+  //     ${count} collisions`;
+  // },
+  effects: [
+    new LightingEffect({
+      ambientLight: new AmbientLight({color: [255, 255, 255], intensity: 1.0}),
+      pointLight: new PointLight({color: [255, 255, 255], intensity: 0.8, position: [-0.144528, 49.739968, 80000]}),
+      pointLight2: new PointLight({color: [255, 255, 255], intensity: 0.8, position: [-3.807751, 54.104682, 8000]})
     })
+  ],
+  controller: true,
+  map: mapboxgl,
+  mapboxApiAccessToken: "pk.eyJ1IjoibWF4Ym8iLCJhIjoiY2lsd2JnZDRyMDFxNHZna3MwZDZmN2R0ZCJ9.32XWATCazaiDzdW6bXvBxw",
+  mapStyle: "mapbox://styles/mapbox/light-v10",
+  layers: [
+    // Add the rent layer
+    new GeoJsonLayer({
+      id: "rent",
+      data: walkability_by_SA1_geojson,
+      opacity: 0.5,
+      stroked: false,
+      filled: true,
+      wireframe: true,
+      getElevation: (f) => f.properties.median_rent_weekly / 10,
+      getFillColor: (f) => {
+        const hex = weeklyRentPlot.scale("color").apply(f.properties.median_rent_weekly)
+        const color = Color(hex);
+        return [color.red * 255, color.green * 255, color.blue * 255]
+      },
+      getLineColor: [255, 255, 255],
+    }),
+    // Add the node layer as a HexagonLayer
+    new HexagonLayer({
+      id: "nodes",
+      data: [...walkability_by_node_geojson.features],
+      radius: 100,
+      elevationScale: 10,
+      extruded: true,
+      colorRange: COLOR_RANGE,
+      coverage: 1,
+      getPosition: (f) => f.geometry.coordinates,
+      getElevation: (f) => takeMax(f.properties),
+      elevationAggregation: "MIN",
+      getColor: (f) => {
+        const hex = distancePlot.scale("color").apply(takeMax(f.properties));
+        const color = Color(hex);
+        return [color.red * 255, color.green * 255, color.blue * 255]
+      },
+      colorAggregation: "MIN",
+    }),
   ]
 });
 
