@@ -172,7 +172,8 @@ function takeMax(node) {
 ```
 
 ```js
-Plot.plot({
+
+view(Plot.plot({
     aspectRatio: 1,
     color: {
       domain: [0, 5000],
@@ -189,7 +190,7 @@ Plot.plot({
         tip: true
       }),
     ],
-  })
+  }))
 ```
 
 ```js
