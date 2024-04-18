@@ -154,6 +154,17 @@ const consideredKeys = view(
 );
 ```
 
+<div class="card" style="margin: 0 -1rem;">
+
+<figure style="max-width: none; position: relative;">
+  <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
+  <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotWeeklyRentLegend()}</div>
+  <div style="position: absolute; top: 4rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotDistanceLegend()}</div>
+  <figcaption>Data: <a href="">TODO</a></figcaption>
+</figure>
+
+</div>
+
 ```js
 function takeMax(node) {
   // extract the values using the considered keys from the node
@@ -165,6 +176,8 @@ function takeMax(node) {
 ```
 
 ```js
+const DISTANCE_LEGEND_LABEL = "Max distance to a desired amenity (m)";
+
 const distancePlot = Plot.plot({
     grid: true,
     aspectRatio: 1,
@@ -173,7 +186,7 @@ const distancePlot = Plot.plot({
       domain: [0, 5000],
       legend: true,
       scheme: "turbo",
-      label: "Max distance"
+      label: DISTANCE_LEGEND_LABEL
     },
     marks: [
       Plot.geo(walkability_by_node_geojson, {
@@ -184,6 +197,13 @@ const distancePlot = Plot.plot({
   })
 
 view(distancePlot)
+
+function plotDistanceLegend() {
+  return Plot.legend({
+    color: distancePlot.scale("color"),
+    label: DISTANCE_LEGEND_LABEL
+  })
+}
 ```
 
 ## Walkability by SA1 again
@@ -211,46 +231,41 @@ Plot.plot({
 ## Walkability by SAL
 
 ```js
-function plotWeeklyRents() {
-  return Plot.plot({
-    grid: true,
-    aspectRatio: 1,
-    width: 1000,
-    color: {
-      domain: [0, 1200],
-      legend: true,
-      label: "Median rent, weekly ($)",
-      scheme: "plasma",
-    },
-    marks: [
-      Plot.geo(walkability_by_SAL_geojson, {
-        fill: (d) => d.properties.median_rent_weekly,
-        tip: { channels: { name: (d) => d.properties.geography_name } },
-      }),
-    ],
-  });
+
+const WEEKLY_RENT_LEGEND_LABEL = "Median rent, weekly ($)";
+
+const weeklyRentPlot = Plot.plot({
+  grid: true,
+  aspectRatio: 1,
+  width: 1000,
+  color: {
+    domain: [0, 1200],
+    legend: true,
+    label: WEEKLY_RENT_LEGEND_LABEL,
+    scheme: "plasma",
+  },
+  marks: [
+    Plot.geo(walkability_by_SAL_geojson, {
+      fill: (d) => d.properties.median_rent_weekly,
+      tip: { channels: { name: (d) => d.properties.geography_name } },
+    }),
+  ],
+});
+
+view(weeklyRentPlot)
+
+function plotWeeklyRentLegend() {
+  return Plot.legend({
+    color: weeklyRentPlot.scale("color"),
+    label: WEEKLY_RENT_LEGEND_LABEL
+  })
 }
-
-const weeklyRentPlot = plotWeeklyRents();
-```
-
-<div>
-${weeklyRentPlot}
-</div>
-
-```js
-const DEFAULT_VIEWPORT_LAT_LON = [-37.8136, 144.9631];
 ```
 
 ```js
 import * as L from "npm:leaflet";
 
-function plotWeeklyRentSALLegend() {
-  return Plot.legend({
-    color: weeklyRentPlot.scale("color"),
-    label: "Median rent, weekly ($)"
-  })
-}
+const DEFAULT_VIEWPORT_LAT_LON = [-37.8136, 144.9631];
 
 function leafletWeeklyRents() {
   const div = display(document.createElement("div"));
@@ -293,7 +308,7 @@ function leafletWeeklyRents() {
 ```
 
 <div>
-${plotWeeklyRentSALLegend()}
+${plotWeeklyRentLegend()}
 ${leafletWeeklyRents()}
 </div>
 
@@ -303,33 +318,7 @@ ${leafletWeeklyRents()}
 import deck from "npm:deck.gl";
 import mapboxgl from "npm:mapbox-gl";
 import Color from "npm:color-js";
-const {DeckGL, AmbientLight, GeoJsonLayer, HexagonLayer, LightingEffect, PointLight} = deck;
-```
-
-
-```js
-const COLOR_RANGE = [
-  [1, 152, 189],
-  [73, 227, 206],
-  [216, 254, 181],
-  [254, 237, 177],
-  [254, 173, 84],
-  [209, 55, 78]
-];
-
-const colorLegend = Plot.plot({
-  margin: 0,
-  marginTop: 20,
-  width: 180,
-  height: 35,
-  style: "color: white;",
-  x: {padding: 0, axis: null},
-  marks: [
-    Plot.cellX(COLOR_RANGE, {fill: ([r, g, b]) => `rgb(${r},${g},${b})`, inset: 0.5}),
-    Plot.text(["Fewer"], {frameAnchor: "top-left", dy: -12}),
-    Plot.text(["More"], {frameAnchor: "top-right", dy: -12})
-  ]
-});
+const {DeckGL, AmbientLight, GeoJsonLayer, ColumnLayer, LightingEffect, PointLight} = deck;
 ```
 
 ```js
@@ -339,16 +328,6 @@ const world = fetch(topo).then((response) => response.json());
 const countries = world.then((world) => topojson.feature(world, world.objects.countries));
 ```
 
-<div class="card" style="margin: 0 -1rem;">
-
-<figure style="max-width: none; position: relative;">
-  <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
-  <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotWeeklyRentSALLegend()}</div>
-  <div style="position: absolute; top: 4rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${colorLegend}</div>
-  <figcaption>Data: <a href="">TODO</a></figcaption>
-</figure>
-
-</div>
 
 ```js
 const deckInstance = new DeckGL({
@@ -398,24 +377,22 @@ const deckInstance = new DeckGL({
       },
       getLineColor: [255, 255, 255],
     }),
-    // Add the node layer as a HexagonLayer
-    new HexagonLayer({
+    // Add the node layer as a ColumnLayer
+    new ColumnLayer({
       id: "nodes",
       data: [...walkability_by_node_geojson.features],
       radius: 100,
-      elevationScale: 10,
+      elevationScale: 0.5,
+      opacity: 0.5,
       extruded: true,
-      colorRange: COLOR_RANGE,
       coverage: 1,
       getPosition: (f) => f.geometry.coordinates,
-      getElevation: (f) => takeMax(f.properties),
-      elevationAggregation: "MIN",
+      getElevation: (f) => 5000 - takeMax(f.properties),
       getColor: (f) => {
         const hex = distancePlot.scale("color").apply(takeMax(f.properties));
         const color = Color(hex);
         return [color.red * 255, color.green * 255, color.blue * 255]
       },
-      colorAggregation: "MIN",
     }),
   ]
 });
