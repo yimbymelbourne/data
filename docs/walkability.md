@@ -2,6 +2,7 @@
 title: Walkability
 sql: 
   walkability_by_SA1: "data/walkability_by_SA1.parquet"
+  walkability_by_node: "data/walkability_by_node.parquet"
 ---
 
 # Walkability
@@ -14,9 +15,6 @@ const walkability_by_SA1 = FileAttachment("data/walkability_by_SA1.parquet").par
 
 ## Walkability by SA1
 
-```sql
-SELECT * FROM walkability_by_SA1 LIMIT 5
-```
 
 ```js
 async function plotMetrics({ x, y, fill }) {
@@ -140,6 +138,59 @@ ${plotSA1Splom()}
 
 
 ## Walkability by node
+
+```sql id=[nodesHead] display
+SELECT * FROM walkability_by_node LIMIT 10
+```
+
+```js
+view({...nodesHead})
+view(Object.keys(nodesHead))
+const closestKeys = Object.keys(nodesHead).filter(d => d.includes("closest"))
+view(closestKeys)
+```
+
+```js
+const consideredKeys = view(
+  Inputs.checkbox(closestKeys, {
+    sort: true,
+    unique: true,
+    // value: "B",
+    label: "Choose amenities you care about:"
+  })
+);
+```
+
+```js
+function takeMax(node) {
+  // extract the values using the considered keys from the node
+  const consideredValues = consideredKeys.map(key => node[key]).map(d => d || 5000);
+  // console.log(consideredValues)
+
+  return Math.max(...consideredValues);
+}
+```
+
+```js
+Plot.plot({
+    aspectRatio: 1,
+    color: {
+      domain: [0, 5000],
+      legend: true,
+      scheme: "turbo",
+      label: "Max distance"
+    },
+    marks: [
+      Plot.dot(walkability_by_node, { 
+        x: "x", 
+        y: "y", 
+        fill: takeMax, 
+        opacity: 0.8,
+        tip: true
+      }),
+    ],
+  })
+```
 
 ```js
 function plotMapScatter({ fill, reverse }) {
