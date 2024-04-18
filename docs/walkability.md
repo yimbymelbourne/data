@@ -9,8 +9,9 @@ sql:
 
 ```js
 const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
-const walkability_by_SAL = FileAttachment("data/walkability_by_SAL.geojson").json();
+const walkability_by_SAL = FileAttachment("data/walkability_by_SAL.geojson").json()
 const walkability_by_SA1 = FileAttachment("data/walkability_by_SA1.parquet").parquet();
+const walkability_by_SA1_geojson = FileAttachment("data/walkability_by_SA1.geojson").json()
 ```
 
 ## Walkability by SA1
@@ -89,9 +90,7 @@ function plotSA1WeeklyRentLegend() {
 }
 ```
 
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
+<div>
 ${plotSA1WeeklyRentLegend()}
 ${plotMetrics({
   x: "bar or pub - within 500m",
@@ -100,9 +99,7 @@ ${plotMetrics({
 })}
 </div>
 
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
+<div>
 ${plotMetrics({
   x: "median_rent_weekly",
   y: "cafe - within 500m",
@@ -110,18 +107,14 @@ ${plotMetrics({
 })}
 </div>
 
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
+<div>
 ${plotMetrics({
   x: "child care - within 2km",
   y: "pct_owner_occupiers",
   fill: "median_age" })}
 </div>
 
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
+<div>
 ${plotMetrics({
   x: "pct_households_wo_cars",
   y: "restaurant - within 1km",
@@ -129,9 +122,7 @@ ${plotMetrics({
 })}
 </div>
 
-<div class="card">
-<h2>SPLOM</h2>
-<h3>TODO</h3>
+<div>
 ${plotSA1WeeklyRentLegend()}
 ${plotSA1Splom()}
 </div>
@@ -172,73 +163,27 @@ function takeMax(node) {
 ```
 
 ```js
-
-view(Plot.plot({
-    aspectRatio: 1,
-    color: {
-      domain: [0, 5000],
-      legend: true,
-      scheme: "turbo",
-      label: "Max distance"
-    },
-    marks: [
-      Plot.dot(walkability_by_node, { 
-        x: "x", 
-        y: "y", 
-        fill: takeMax, 
-        opacity: 0.8,
-        tip: true
-      }),
-    ],
-  }))
+Plot.plot({
+  title: "TODO title",
+  aspectRatio: 1,
+  width: 1000,
+  color: {
+    domain: [0, 5000],
+    legend: true,
+    scheme: "turbo",
+    label: "Max distance"
+  },
+  marks: [
+    Plot.dot(walkability_by_node, { 
+      x: "x", 
+      y: "y", 
+      fill: takeMax, 
+      opacity: 0.8,
+      tip: true
+    }),
+  ],
+})
 ```
-
-```js
-function plotMapScatter({ fill, reverse }) {
-  return Plot.plot({
-    aspectRatio: 1,
-    color: {
-      legend: true,
-      reverse,
-      scheme: "turbo",
-    },
-    marks: [
-      Plot.dot(walkability_by_node, { 
-        x: "x", 
-        y: "y", 
-        fill, 
-        opacity: 0.8
-      }),
-    ],
-  });
-}
-```
-
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
-${plotMapScatter({
-  fill: "library - closest",
-  reverse: true
-})}
-</div>
-
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
-${plotMapScatter({
-  fill: "cafe - closest",
-  reverse: true
-})}
-</div>
-
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
-${plotMapScatter({
-  fill: "grocery or supermarket - within 1km"
-})}
-</div>
 
 ## Walkability by SAL
 
@@ -264,9 +209,7 @@ function plotWeeklyRents() {
 const weeklyRentPlot = plotWeeklyRents();
 ```
 
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
+<div>
 ${weeklyRentPlot}
 </div>
 
@@ -303,9 +246,7 @@ function leafletWeeklyRents() {
 }
 ```
 
-<div class="card">
-<h2>TODO</h2>
-<h3>TODO</h3>
+<div>
 ${plotWeeklyRentSALLegend()}
 ${leafletWeeklyRents()}
 </div>

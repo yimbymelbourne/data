@@ -7,7 +7,7 @@ from typing import Literal
 def print_parquet_file_to_stdout(*, 
   name: str, 
   url: str,
-type: Literal["parquet", "geojson"],
+  type: Literal["parquet", "geojson"],
   sample = None):
     response = requests.get(url, allow_redirects=True)
 
