@@ -10,6 +10,8 @@ A Melbourne specific clone of [close.city](https://close.city/).
 ```js
 const walkability_by_node_geojson = FileAttachment("data/walkability_by_node.geojson").json();
 const walkability_by_SA1_geojson = FileAttachment("data/walkability_by_SA1.geojson").json()
+// FIXME: We have to use the lower resolution SAL file because Observable doesn't support large files over 50mb.
+const walkability_by_SAL_geojson = FileAttachment("data/walkability_by_SAL.geojson").json()
 ```
 
 
@@ -116,7 +118,7 @@ const deckInstance = new DeckGL({
     // Add the node layer as a ColumnLayer
     new ColumnLayer({
       id: "nodes",
-      data: [...walkability_by_node_geojson.features],
+      data: walkability_by_node_geojson.features,
       radius: 100,
       elevationScale: 0.2,
       opacity: 0.5,
