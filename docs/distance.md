@@ -1,11 +1,8 @@
 ---
 title: Distance map
-
-sql: 
-  walkability_by_node: "data/walkability_by_node.parquet"
 ---
 
-# Distance
+# Maximum distance to desired amenities
 
 A Melbourne specific clone of [close.city](https://close.city/).
 
@@ -15,111 +12,41 @@ const walkability_by_node_geojson = FileAttachment("data/walkability_by_node.geo
 const walkability_by_SA1_geojson = FileAttachment("data/walkability_by_SA1.geojson").json()
 ```
 
-<div class="card" style="margin: 0 -1rem;">
 
+```js
+const nodesHead = walkability_by_node_geojson.features[0].properties;
+const closestKeys = Object.keys(nodesHead).filter(d => d.includes("closest"))
+const consideredKeys = view(
+  Inputs.checkbox(closestKeys, {
+    sort: true,
+    unique: true,
+    value: ["restaurant - closest", "grocery or supermarket - closest", "cafe - closest", "bar or pub - closest", "park area - closest", "school - closest", "child care - closest", "medical facility - closest"],
+    label: "Choose amenities you care about:",
+    format: d => d.replace(" - closest", "")
+  })
+);
+```
+
+```js
+
+const MAX_DISTANCE = 5000;
+
+function takeMax(node) {
+  // extract the values using the considered keys from the node
+  const consideredValues = consideredKeys.map(key => node[key]).map(d => d || MAX_DISTANCE);
+  return Math.max(...consideredValues);
+}
+```
+
+<div class="card" style="margin: 0 -1rem;">
 <figure style="max-width: none; position: relative;">
   <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
   <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotWeeklyRentLegend()}</div>
   <div style="position: absolute; top: 4rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotDistanceLegend()}</div>
   <figcaption>Data: <a href="">TODO</a></figcaption>
 </figure>
-
 </div>
 
-
-```sql id=[nodesHead] display
-SELECT * FROM walkability_by_node LIMIT 10
-```
-
-```js
-view({...nodesHead})
-view(Object.keys(walkability_by_node_geojson.features[0].properties))
-const closestKeys = Object.keys(nodesHead).filter(d => d.includes("closest"))
-view(closestKeys)
-```
-
-```js
-const consideredKeys = view(
-  Inputs.checkbox(closestKeys, {
-    sort: true,
-    unique: true,
-    value: ["restaurant - closest", "grocery or supermarket - closest", "cafe - closest", "bar or pub - closest", "park area - closest", "school - closest", "child care - closest", "medical facility - closest"],
-    label: "Choose amenities you care about:"
-  })
-);
-```
-
-```js
-function takeMax(node) {
-  // extract the values using the considered keys from the node
-  const consideredValues = consideredKeys.map(key => node[key]).map(d => d || 5000);
-  // console.log(consideredValues)
-
-  return Math.max(...consideredValues);
-}
-```
-
-```js
-const DISTANCE_LEGEND_LABEL = "Max distance to a desired amenity (m)";
-
-const distancePlot = Plot.plot({
-    grid: true,
-    aspectRatio: 1,
-    width: 1000,
-    color: {
-      domain: [0, 5000],
-      legend: true,
-      scheme: "turbo",
-      label: DISTANCE_LEGEND_LABEL
-    },
-    marks: [
-      Plot.geo(walkability_by_node_geojson, {
-        fill: (d) => takeMax(d.properties),
-        tip: true
-      }),
-    ],
-  })
-
-view(distancePlot)
-
-function plotDistanceLegend() {
-  return Plot.legend({
-    color: distancePlot.scale("color"),
-    label: DISTANCE_LEGEND_LABEL
-  })
-}
-```
-
-```js
-const WEEKLY_RENT_LEGEND_LABEL = "Median rent, weekly ($)";
-
-const weeklyRentPlot  = Plot.plot({
-    grid: true,
-    aspectRatio: 1,
-    width: 1000,
-    color: {
-      domain: [0, 1200],
-      legend: true,
-      label: WEEKLY_RENT_LEGEND_LABEL,
-      scheme: "plasma",
-    },
-    marks: [
-      Plot.geo(walkability_by_SA1_geojson, {
-        fill: (d) => d.properties.median_rent_weekly,
-        tip: { channels: { name: (d) => d.properties.geography_name } },
-      }),
-    ],
-  })
-
-view(weeklyRentPlot)
-
-function plotWeeklyRentLegend() {
-  return Plot.legend({
-    color: weeklyRentPlot.scale("color"),
-    label: WEEKLY_RENT_LEGEND_LABEL
-  })
-}
-```
 
 ```js
 import deck from "npm:deck.gl";
@@ -138,27 +65,26 @@ const countries = world.then((world) => topojson.feature(world, world.objects.co
 
 ```js
 // Melbourne CBD
-const DEFAULT_VIEWPORT_LAT_LON = [-37.8136, 144.9631];
+const MELBOURNE_CBD_LAT_LON = [-37.8136, 144.9631];
 
 const deckInstance = new DeckGL({
   container,
   initialViewState: {
-    longitude: DEFAULT_VIEWPORT_LAT_LON[1],
-    latitude: DEFAULT_VIEWPORT_LAT_LON[0],
-    zoom: 15,
+    longitude: MELBOURNE_CBD_LAT_LON[1],
+    latitude: MELBOURNE_CBD_LAT_LON[0],
+    zoom: 10,
     minZoom: 5,
     maxZoom: 15,
     pitch: 40.5,
     bearing: 0
   },
-  // getTooltip: ({ object}) => {
-  //   if (!object) return null;
-  //   const [lng, lat] = object.position;
-  //   const count = object.points.length;
-  //   return `latitude: ${lat.toFixed(2)}
-  //     longitude: ${lng.toFixed(2)}
-  //     ${count} collisions`;
-  // },
+  getTooltip: ({ object }) => {
+    if (!object) return null;
+    const [lng, lat] = object.position;
+    return `latitude: ${lat.toFixed(2)}
+      longitude: ${lng.toFixed(2)}
+    `;
+  },
   effects: [
     new LightingEffect({
       ambientLight: new AmbientLight({color: [255, 255, 255], intensity: 1.0}),
@@ -197,7 +123,7 @@ const deckInstance = new DeckGL({
       extruded: true,
       coverage: 1,
       getPosition: (f) => f.geometry.coordinates,
-      getElevation: (f) => 5000 - takeMax(f.properties),
+      getElevation: (f) => MAX_DISTANCE - takeMax(f.properties),
       getColor: (f) => {
         const hex = distancePlot.scale("color").apply(takeMax(f.properties));
         const color = Color(hex);
@@ -213,3 +139,72 @@ invalidation.then(() => {
   container.innerHTML = "";
 });
 ```
+
+```js
+const DISTANCE_LEGEND_LABEL = "Max distance to a desired amenity (m)";
+
+const distancePlot = Plot.plot({
+    grid: true,
+    aspectRatio: 1,
+    color: {
+      domain: [0, MAX_DISTANCE],
+      legend: true,
+      scheme: "turbo",
+      label: DISTANCE_LEGEND_LABEL
+    },
+    marks: [
+      Plot.geo(walkability_by_node_geojson, {
+        fill: (d) => takeMax(d.properties),
+        tip: true
+      }),
+    ],
+  })
+
+view(distancePlot)
+
+function plotDistanceLegend() {
+  return Plot.legend({
+    color: distancePlot.scale("color"),
+    label: DISTANCE_LEGEND_LABEL
+  })
+}
+```
+
+
+```js
+const WEEKLY_RENT_LEGEND_LABEL = "Median rent, weekly ($)";
+
+const weeklyRentPlot  = Plot.plot({
+    grid: true,
+    aspectRatio: 1,
+    color: {
+      domain: [0, 1200],
+      legend: true,
+      label: WEEKLY_RENT_LEGEND_LABEL,
+      scheme: "plasma",
+    },
+    marks: [
+      Plot.geo(walkability_by_SA1_geojson, {
+        fill: (d) => d.properties.median_rent_weekly,
+        tip: { channels: { name: (d) => d.properties.geography_name } },
+      }),
+    ],
+  })
+
+view(weeklyRentPlot)
+
+function plotWeeklyRentLegend() {
+  return Plot.legend({
+    color: weeklyRentPlot.scale("color"),
+    label: WEEKLY_RENT_LEGEND_LABEL
+  })
+}
+```
+<div class="grid grid-cols-2">
+  <div class="card" style="max-width: 640px;">
+    ${distancePlot}
+  </div>
+  <div class="card" style="max-width: 640px;">
+    ${weeklyRentPlot}
+  </div>
+</div>

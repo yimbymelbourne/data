@@ -12,7 +12,7 @@ export default {
       path: "/walkability",
     },
     {
-      name: "Distance map",
+      name: "Maximum distance to desired amenities",
       path: "/distance",
     }
   ],
