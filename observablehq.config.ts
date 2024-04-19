@@ -10,6 +10,10 @@ export default {
     {
       name: "Walkability",
       path: "/walkability",
+    },
+    {
+      name: "Distance map",
+      path: "/distance",
     }
   ],
 
