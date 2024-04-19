@@ -4,3 +4,5 @@ node_modules
 .DS_Store
 .venv
 temp
+dist/
+src/.observablehq

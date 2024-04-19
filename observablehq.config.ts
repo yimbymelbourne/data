@@ -14,6 +14,10 @@ export default {
     {
       name: "Maximum distance to desired amenities",
       path: "/distance",
+    },
+    {
+      name: "Permit analysis",
+      path: "/permits",
     }
   ],
 

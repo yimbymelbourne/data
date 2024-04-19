@@ -30,6 +30,20 @@ const consideredKeys = view(
 ```
 
 ```js
+const elevationScale = view(Inputs.range([0, 2], {
+  step: 0.1, 
+  value: 0.4, 
+  label: "Elevation scale" 
+}));
+
+const radius = view(Inputs.range([0, 500], {
+  step: 10, 
+  value: 100, 
+  label: "Radius" 
+}));
+```
+
+```js
 
 const MAX_DISTANCE = 5000;
 
@@ -55,9 +69,6 @@ import deck from "npm:deck.gl";
 import mapboxgl from "npm:mapbox-gl";
 import Color from "npm:color-js";
 const {DeckGL, AmbientLight, GeoJsonLayer, ColumnLayer, LightingEffect, PointLight} = deck;
-```
-
-```js
 // https://observablehq.com/@visionscarto/world-atlas-topojson#files
 const topo = import.meta.resolve("npm:visionscarto-world-atlas/world/50m.json");
 const world = fetch(topo).then((response) => response.json());
@@ -102,7 +113,7 @@ const deckInstance = new DeckGL({
     // Add the rent layer
     new GeoJsonLayer({
       id: "rent",
-      data: walkability_by_SAL_geojson,
+      data: walkability_by_SA1_geojson,
       opacity: 0.5,
       stroked: false,
       filled: true,
@@ -119,8 +130,8 @@ const deckInstance = new DeckGL({
     new ColumnLayer({
       id: "nodes",
       data: walkability_by_node_geojson.features,
-      radius: 100,
-      elevationScale: 0.4,
+      radius,
+      elevationScale,
       opacity: 0.5,
       extruded: true,
       coverage: 1,
@@ -186,7 +197,7 @@ const weeklyRentPlot  = Plot.plot({
       scheme: "plasma",
     },
     marks: [
-      Plot.geo(walkability_by_SAL_geojson, {
+      Plot.geo(walkability_by_SA1_geojson, {
         fill: (d) => d.properties.median_rent_weekly,
         tip: { channels: { name: (d) => d.properties.geography_name } },
       }),
