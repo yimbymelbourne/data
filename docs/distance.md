@@ -102,7 +102,7 @@ const deckInstance = new DeckGL({
     // Add the rent layer
     new GeoJsonLayer({
       id: "rent",
-      data: walkability_by_SA1_geojson,
+      data: walkability_by_SAL_geojson,
       opacity: 0.5,
       stroked: false,
       filled: true,
@@ -120,7 +120,7 @@ const deckInstance = new DeckGL({
       id: "nodes",
       data: walkability_by_node_geojson.features,
       radius: 100,
-      elevationScale: 0.2,
+      elevationScale: 0.4,
       opacity: 0.5,
       extruded: true,
       coverage: 1,
@@ -186,7 +186,7 @@ const weeklyRentPlot  = Plot.plot({
       scheme: "plasma",
     },
     marks: [
-      Plot.geo(walkability_by_SA1_geojson, {
+      Plot.geo(walkability_by_SAL_geojson, {
         fill: (d) => d.properties.median_rent_weekly,
         tip: { channels: { name: (d) => d.properties.geography_name } },
       }),
