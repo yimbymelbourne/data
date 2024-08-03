@@ -14,7 +14,7 @@ const walkability_by_SA1 = FileAttachment(
 ).parquet()
 ```
 
-## Walkability by SA1 njsdjkflbnvgjkdsfbkls
+## Walkability by SA1
 
 ```js
 async function plotMetrics({ x, y, fill }) {
