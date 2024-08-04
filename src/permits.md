@@ -4,6 +4,8 @@ title: Distance map
 
 # Permit analysis
 
+The permit data DB is absolutely massive. I haven't included it in the repo because it'll trigger Git LFS. You can dm me (Max Bo) and I'll figure out a way to get it to you. 
+
 ```js
 const db = await FileAttachment("data/permit_data.db").sqlite();
 // columnNames = [
