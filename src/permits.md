@@ -36,7 +36,7 @@ const db = await FileAttachment("data/permit_data.db").sqlite();
 //   24: "numberOfNewLots"
 //   25: "numberOfNewDwellings"
 // ]
-const permits = await db.sql`SELECT * FROM permit LIMIT 50`;
+const permits = await db.sql`SELECT * FROM permit_compressed LIMIT 50`;
 view(Inputs.table(permits));
 ```
 
