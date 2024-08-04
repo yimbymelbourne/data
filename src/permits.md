@@ -7,7 +7,9 @@ title: Distance map
 The permit data DB is absolutely massive. I haven't included it in the repo because it'll trigger Git LFS. You can dm me (Max Bo) and I'll figure out a way to get it to you. 
 
 ```js
-const db = await FileAttachment("data/permit_data.db").sqlite();
+const db = await DuckDBClient.of({base: FileAttachment("data/permit_data.db")});
+
+
 // columnNames = [
 //   0: "pparsID"
 //   1: "planningScheme"
@@ -36,7 +38,7 @@ const db = await FileAttachment("data/permit_data.db").sqlite();
 //   24: "numberOfNewLots"
 //   25: "numberOfNewDwellings"
 // ]
-const permits = await db.sql`SELECT * FROM permit_compressed LIMIT 50`;
+const permits = await db.sql`SELECT * FROM base.permit LIMIT 50`;
 view(Inputs.table(permits));
 ```
 
@@ -44,7 +46,7 @@ view(Inputs.table(permits));
 // for each final outcome and each number of new dwellings, count the number of each combination
 const counts = await db.sql`
 SELECT numberOfNewDwellings, lower(finalOutcome) as finalOutcome, count(*) as count
-FROM permit 
+FROM base.permit 
 WHERE numberOfNewDwellings IS NOT NULL 
   AND numberOfNewDwellings > 0
   AND finalOutcome IS NOT NULL 
@@ -54,7 +56,7 @@ GROUP BY numberOfNewDwellings, lower(finalOutcome)`
 view(Inputs.table(counts));
 
 // now groupby number of dwellings again, and then calculate (permit issued / (permit issued + no permit issued))
-const issuedRates = Object.values(_.groupBy(counts, (d) => d.numberOfNewDwellings)).map(d => {
+const issuedRates = Object.values(_.groupBy(counts.toArray(), (d) => d.numberOfNewDwellings)).map(d => {
   const noPermitIssued = d.find(e => e.finalOutcome === "no permit issued")?.count || 0;
   const permitIssued = d.find(e => e.finalOutcome === "permit issued")?.count || 0;
 
@@ -67,6 +69,7 @@ view(Inputs.table(issuedRates))
 ```
 
 ```js
+
 Plot.plot({
   x: { 
     label: "Number of new dwellings",
@@ -92,17 +95,20 @@ Plot.plot({
 ```js
 // for each final outcome and each number of new dwellings, count the number of each combination
 const costs = await db.sql`
-SELECT estimatedCostOfWorks, lower(finalOutcome) as finalOutcome
-FROM permit 
-WHERE estimatedCostOfWorks IS NOT NULL 
+SELECT 
+  CAST(
+    REPLACE(
+      REPLACE(estimatedCostOfWorks, '$', ''), 
+      ',', 
+      ''
+    ) AS NUMERIC
+  ) as estimatedCostOfWorks,
+  LOWER(finalOutcome) as finalOutcome
+FROM base.permit 
+WHERE 
+  estimatedCostOfWorks IS NOT NULL 
   AND finalOutcome IS NOT NULL 
   AND finalOutcome != ''`
-
-// estimated costs of works are formatted like this: $-16,900,000.00
-// we need to parse them into numbers
-costs.forEach(d => {
-  d.estimatedCostOfWorks = Number(d.estimatedCostOfWorks.replaceAll("$", "").replaceAll(",", ""));
-})
 
 view(Inputs.table(costs));
 ```
