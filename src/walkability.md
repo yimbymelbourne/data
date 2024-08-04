@@ -1,20 +1,19 @@
 ---
 title: Walkability
-sql:
-  # walkability_by_node: "data/walkability_by_node.parquet"
+sql: 
+  walkability_by_node: "data/walkability_by_node.parquet"
   walkability_by_SA1: "data/walkability_by_SA1.parquet"
 ---
 
 # Walkability
 
 ```js
-// const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
-const walkability_by_SA1 = FileAttachment(
-  "data/walkability_by_SA1.parquet"
-).parquet()
+const walkability_by_node = FileAttachment("data/walkability_by_node.parquet").parquet();
+const walkability_by_SA1 = FileAttachment("data/walkability_by_SA1.parquet").parquet();
 ```
 
-## Walkability by SA1 njsdjkflbnvgjkdsfbkls
+## Walkability by SA1
+
 
 ```js
 async function plotMetrics({ x, y, fill }) {
@@ -32,13 +31,13 @@ async function plotMetrics({ x, y, fill }) {
         tip: { channels: { name: "geography_name" } },
       }),
     ],
-  })
+  });
 }
 ```
 
 ```js
 // adapted from https://uwdata.github.io/mosaic/examples/splom.html
-const $brush = vg.Selection.single()
+const $brush = vg.Selection.single();
 
 const independentVariables = [
   "restaurant - within 1km",
@@ -55,29 +54,25 @@ const dependentVariables = [
   "pct_apartments",
 ]
 
+
 const makeFacet = (x, y) => {
   return vg.plot(
     // https://uwdata.github.io/mosaic/api/vgplot/attributes.html
-    vg.frame({ stroke: "#ccc" }),
-    vg.dot(vg.from("walkability_by_SA1"), {
-      x,
-      y,
-      fill: "median_rent_weekly",
-      r: 2,
-    }),
-    vg.intervalXY({ as: $brush }),
-    vg.highlight({ by: $brush, opacity: 0.1 }),
+    vg.frame({stroke: "#ccc"}),
+    vg.dot(
+      vg.from("walkability_by_SA1"),
+      {x, y, fill: "median_rent_weekly", r: 2}
+    ),
+    vg.intervalXY({as: $brush}),
+    vg.highlight({by: $brush, opacity: 0.1}),
     vg.xLabelAnchor("center"),
-    vg.yLabelAnchor("center")
+    vg.yLabelAnchor("center"),
   )
 }
 
-const plotSA1Splom = () =>
-  vg.vconcat(
-    ...dependentVariables.map((d) =>
-      vg.hconcat(...independentVariables.map((i) => makeFacet(i, d)))
-    )
-  )
+const plotSA1Splom = () => vg.vconcat(
+  ...dependentVariables.map(d => vg.hconcat(...independentVariables.map(i => makeFacet(i, d)))
+))
 ```
 
 ```js
@@ -88,7 +83,7 @@ function plotSA1WeeklyRentLegend() {
   }).plot()
   return Plot.legend({
     color: rent.scale("color"),
-    label: "Median rent, weekly ($)",
+    label: "Median rent, weekly ($)"
   })
 }
 ```
@@ -129,3 +124,5 @@ ${plotMetrics({
 ${plotSA1WeeklyRentLegend()}
 ${plotSA1Splom()}
 </div>
+
+
