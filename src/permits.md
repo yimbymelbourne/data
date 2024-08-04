@@ -4,9 +4,10 @@ title: Permit analysis
 
 # Permit analysis
 
-```js
-const db = await DuckDBClient.of({base: FileAttachment("data/permit_data.db")});
 
+```js
+import {DuckDBClient} from "npm:@observablehq/duckdb";
+const db = await DuckDBClient.of({base: FileAttachment("data/permit_data.db")});
 
 // columnNames = [
 //   0: "pparsID"
