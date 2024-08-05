@@ -18,7 +18,11 @@ export default {
     {
       name: "Permit analysis",
       path: "/permits",
-    }
+    },
+    {
+      name: "Rent vs Mortgage",
+      path: "/rent-vs-mortgage",
+    },
   ],
 
   // Some additional configuration options and their defaults:
