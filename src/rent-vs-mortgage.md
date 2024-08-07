@@ -44,7 +44,7 @@ A comparison of the rents vs mortgage repayments for houses and units in Melbour
 The following sources are used
 * [**Neoval property price data**](https://neoval.io/) as at ${prices.at(0).date.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
 * **ABS rent data** from the 2021 census
-* [**RBA interest rates**](https://www.rba.gov.au/statistics/tables/xls/f06hist.xlsx), with the latest data from ${interestRateAsAt.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })})
+* [**RBA interest rates**](https://www.rba.gov.au/statistics/tables/xls/f06hist.xlsx), with the latest data from ${interestRateAsAt.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
 
 The analysis only includes SA2s from the greater Melbourne region (although it would be easy to extend nationally given appropriate rent data).
 
@@ -356,29 +356,25 @@ Inputs.table(search, {
 </div>
 
 
-## Where are the mortages relative "affordable" (closest to rents)?
+## Where are the mortgages relatively "affordable" (closest to rents)?
 
 ```js
-const propertyType = view(Inputs.radio(['HOUSE', 'UNIT'], { label: 'Property Type', value: 'HOUSE' }))
-const rangeType = view(Inputs.radio(['DYNAMIC', 'FIXED'], { label: 'Colour Range Type', value: 'FIXED' }))
+const propertyType = view(Inputs.radio(['HOUSE', 'UNIT'], { label: 'Property type', value: 'HOUSE' }))
+const rangeType = view(Inputs.radio(['DYNAMIC', 'FIXED'], { label: 'Colour range type', value: 'FIXED' }))
 ```
 
-The FIXED colour range option ensures the same fixed range of colours for consistent display across both units and houses, while the DYNAMIC option adjusts the range based on the data to maximise the contrast.
+The `FIXED` colour range option ensures the same fixed range of colours for consistent display across both units and houses, while the `DYNAMIC` option adjusts the range based on the data to maximise the contrast.
 
 ```js
 const dataArray = data.toArray().filter(row => row.property_type === propertyType)
 const sa2Map = new Map(dataArray.map(row => [row.sa2_code.toString(), row]))
 const sa2Codes = new Set(sa2Map.keys())
-const domain = rangeType === 'FIXED'
-   ? FIXED_DOMAIN
-   : dataArray.reduce((acc, row) => {
-        const ratio = row.repayment_to_rent_ratio
-        return [Math.min(acc[0], ratio), Math.max(acc[1], ratio)]
-      },
-      [100, 0],
-   )
+const domain = rangeType === 'FIXED' ? FIXED_DOMAIN : undefined
 
-const deckColours = Plot.plot({ color: { domain } }).scale('color')
+const deckColours = Plot.plot({
+  color: { domain },
+  marks: [Plot.dot(dataArray, { fill: 'repayment_to_rent_ratio' })],
+}).scale('color')
 const plotRatioLegend = Plot.legend({
   label: 'Repayment to rent ratio',
   color: deckColours,
@@ -489,13 +485,15 @@ invalidation.then(() => {
 Plot.plot({
   aspectRatio: 1,
   color: {
-    legend: true,
     domain,
+    legend: true,
     label: 'Repayment to rent ratio',
   },
   marks: [
     Plot.geo(melbourneSa2s, {
       fill: f => sa2Map.get(f?.properties?.REGION_CODE)?.repayment_to_rent_ratio,
+      stroke: 'black',
+      strokeWidth: 0.3,
     }),
     Plot.tip(melbourneSa2s.features, Plot.pointer(Plot.geoCentroid({
       anchor: 'bottom',
