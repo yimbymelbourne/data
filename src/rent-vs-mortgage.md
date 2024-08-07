@@ -393,7 +393,7 @@ const countries = world.then((world) =>
 ```
 
 ```js
-const sa2s = FileAttachment("data/vic_sa2s.geojson").json();
+const sa2s = FileAttachment("data/australia_sa2s.geojson").json();
 ```
 
 ```js
@@ -471,4 +471,34 @@ invalidation.then(() => {
   deckInstance.finalize();
   container.innerHTML = "";
 });
+```
+
+
+```js
+const sa2Codes = dataArray.map(d => d.sa2_code.toString());
+const melbourneSa2s = {...sa2s, features: sa2s.features.filter(f => sa2Codes.includes(f.properties.SA2_MAIN16))}
+
+view(Plot.plot({
+  aspectRatio: 1,
+  color: {
+    legend: true,
+    domain: [1, 9],
+    label: "Repayment to rent ratio",
+  },
+  marks: [
+    Plot.geo(melbourneSa2s, {
+      fill: (f) => {
+        const sa2 = dataArray.find((d) =>
+          d.sa2_code.toString() === f.properties.SA2_MAIN16
+        );
+
+        if (!sa2) {
+          return undefined;
+        }
+
+        return sa2.repayment_to_rent_ratio
+      },
+    }),
+  ]
+}))
 ```
