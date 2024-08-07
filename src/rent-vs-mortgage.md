@@ -440,9 +440,7 @@ const deckInstance = new DeckGL({
       id: "sa2s",
       data: sa2s,
       opacity: 0.5,
-      filled: true,
       wireframe: true,
-      getElevation: (f) => 5,
       getFillColor: (f) => {
         const sa2 = dataArray.find((d) =>
           d.sa2_code.toString() === f.properties.SA2_MAIN16
@@ -459,9 +457,13 @@ const deckInstance = new DeckGL({
         const color = Color(hex);
         return [color.red * 255, color.green * 255, color.blue * 255];
       },
+      getText: (f) => f.properties.SA2_MAIN16,
       // getLineColor: () => [255, 255, 255],
     }),
   ],
+  getTooltip: ({object}) => {
+    return object && object.properties.SA2_MAIN16
+  } 
 });
 
 // clean up if this code re-runs
