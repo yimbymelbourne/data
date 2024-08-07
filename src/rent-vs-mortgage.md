@@ -158,11 +158,12 @@ Units typically have a ${metrics.median_unit_repayment_to_rent_ratio < metrics.m
 <div class="card">
 
 ```js
-Plot.plot({
+const aggregateRatiosPlot = Plot.plot({
   marginRight: 50,
   color: {
-    domain: [0, 3],
-    scheme: 'reds',
+    legend: true,
+    domain: [1, 9],
+    label: "Repayment to rent ratio",
     type: 'linear',
   },
   y: {
@@ -197,6 +198,15 @@ Plot.plot({
     Plot.tip(['Mortgage = rent'], { x: 1, y: 70, anchor: 'left' }),
   ],
 })
+
+view(aggregateRatiosPlot)
+
+function plotRatioLegend() {
+  return Plot.legend({
+    label: "Repayment to rent ratio",
+    color: aggregateRatiosPlot.scale("color"),
+  })
+}
 ```
 
 </div>
@@ -254,9 +264,9 @@ const repaymentFormat = v => d3.formatPrefix('$.2~s', Math.max(maxRepaymentDomai
 Plot.plot({
   marginRight: 50,
   color: {
-    domain: [0, 3],
-    scheme: 'reds',
-    type: 'linear',
+    legend: true,
+    domain: [1, 9],
+    label: "Repayment to rent ratio",
   },
   x: {
     domain: [0, maxRepaymentDomain],
@@ -350,3 +360,113 @@ Inputs.table(search, {
 ```
 
 </div>
+
+
+## Where are the mortages "affordable" (closest to rents)?
+
+<div class="card" style="margin: 0 -1rem;">
+<figure style="max-width: none; position: relative;">
+  <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
+  <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotRatioLegend()}</div>
+  <!-- <figcaption>Data: <a href="">TODO</a></figcaption> -->
+</figure>
+</div>
+
+```js
+import deck from "npm:deck.gl";
+import mapboxgl from "npm:mapbox-gl";
+import Color from "npm:color-js";
+const {
+  DeckGL,
+  AmbientLight,
+  GeoJsonLayer,
+  ColumnLayer,
+  LightingEffect,
+  PointLight,
+} = deck;
+// https://observablehq.com/@visionscarto/world-atlas-topojson#files
+const topo = import.meta.resolve("npm:visionscarto-world-atlas/world/50m.json");
+const world = fetch(topo).then((response) => response.json());
+const countries = world.then((world) =>
+  topojson.feature(world, world.objects.countries)
+);
+```
+
+```js
+const sa2s = FileAttachment("data/vic_sa2s.geojson").json();
+```
+
+```js
+const dataArray = data.toArray();
+const fs = [];
+const MELBOURNE_CBD_LAT_LON = [-37.8136, 144.9631];
+
+const deckInstance = new DeckGL({
+  container,
+  initialViewState: {
+    longitude: MELBOURNE_CBD_LAT_LON[1],
+    latitude: MELBOURNE_CBD_LAT_LON[0],
+    zoom: 10,
+    minZoom: 5,
+    maxZoom: 15,
+    pitch: 40.5,
+    bearing: 0,
+  },
+  effects: [
+    new LightingEffect({
+      ambientLight: new AmbientLight({
+        color: [255, 255, 255],
+        intensity: 1.0,
+      }),
+      pointLight: new PointLight({
+        color: [255, 255, 255],
+        intensity: 0.8,
+        position: [-0.144528, 49.739968, 80000],
+      }),
+      pointLight2: new PointLight({
+        color: [255, 255, 255],
+        intensity: 0.8,
+        position: [-3.807751, 54.104682, 8000],
+      }),
+    }),
+  ],
+  controller: true,
+  map: mapboxgl,
+  mapboxApiAccessToken:
+    "pk.eyJ1IjoibWF4Ym8iLCJhIjoiY2lsd2JnZDRyMDFxNHZna3MwZDZmN2R0ZCJ9.32XWATCazaiDzdW6bXvBxw",
+  mapStyle: "mapbox://styles/mapbox/light-v10",
+  layers: [
+    new GeoJsonLayer({
+      id: "sa2s",
+      data: sa2s,
+      opacity: 0.5,
+      filled: true,
+      wireframe: true,
+      getElevation: (f) => 5,
+      getFillColor: (f) => {
+        const sa2 = dataArray.find((d) =>
+          d.sa2_code.toString() === f.properties.SA2_MAIN16
+        );
+
+        if (!sa2) {
+          return undefined;
+        }
+
+        const hex = aggregateRatiosPlot.scale("color").apply(
+          sa2.repayment_to_rent_ratio,
+        );
+
+        const color = Color(hex);
+        return [color.red * 255, color.green * 255, color.blue * 255];
+      },
+      // getLineColor: () => [255, 255, 255],
+    }),
+  ],
+});
+
+// clean up if this code re-runs
+invalidation.then(() => {
+  deckInstance.finalize();
+  container.innerHTML = "";
+});
+```

@@ -59,7 +59,7 @@ function takeMax(node) {
   <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
   <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotWeeklyRentLegend()}</div>
   <div style="position: absolute; top: 4rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotDistanceLegend()}</div>
-  <figcaption>Data: <a href="">TODO</a></figcaption>
+  <!-- <figcaption>Data: <a href="">TODO</a></figcaption> -->
 </figure>
 </div>
 
@@ -124,7 +124,7 @@ const deckInstance = new DeckGL({
         const color = Color(hex);
         return [color.red * 255, color.green * 255, color.blue * 255]
       },
-      getLineColor: [255, 255, 255],
+      getLineColor: () => [255, 255, 255],
     }),
     // Add the node layer as a ColumnLayer
     new ColumnLayer({

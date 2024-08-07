@@ -7,10 +7,10 @@ export default {
   // all pages will be listed in alphabetical order. Listing pages explicitly
   // lets you organize them into sections and have unlisted pages.
   pages: [
-    {
-      name: "Walkability",
-      path: "/walkability",
-    },
+    // {
+    //   name: "Walkability",
+    //   path: "/walkability",
+    // },
     {
       name: "Maximum distance to desired amenities",
       path: "/distance",
