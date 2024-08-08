@@ -428,12 +428,11 @@ const deckInstance = new DeckGL({
     if (!properties) return
 
     return {
-      html: [
-        `<h2>${properties.REGION_NAME}</h2>`,
-        `<b>Mortgage</b> ${percentFormat(properties.repayment_to_rent_ratio)} of Rent<br>`,
-        `<b>Rent</b> ${priceFormat(properties.typical_monthly_rent)}<br>`,
-        `<b>Mortgage</b> ${priceFormat(properties.monthly_repayment)}<br>`,
-      ].join('\n'),
+      html:
+        `<h2>${properties.REGION_NAME}</h2>
+        <b>Mortgage</b> ${percentFormat(properties.repayment_to_rent_ratio)} of Rent<br>
+        <b>Rent</b> ${priceFormat(properties.typical_monthly_rent)}<br>
+        <b>Mortgage</b> ${priceFormat(properties.monthly_repayment)}<br>`
     }
   },
 })
@@ -449,26 +448,26 @@ invalidation.then(() => {
 <div class='card'>
 
 ```js
-  const tooltip = f => [
-    f.properties.REGION_NAME,
-    `Mortgage ${percentFormat(f.properties.repayment_to_rent_ratio)} of Rent`,
-    `Rent ${priceFormat(f.properties.typical_monthly_rent)}`,
-    `Mortgage ${priceFormat(f.properties.monthly_repayment)}`
-  ].join('\n')
-  const tip = (json, type) => Plot.tip(json.features, Plot.pointer(Plot.geoCentroid({
-    title: tooltip,
-    fx: () => type,
-  })))
-  const fill = (json, type) => Plot.geo(json, {
-    fill: d => d.properties.repayment_to_rent_ratio,
-    stroke: 'black',
-    strokeWidth: 0.3,
-    fx: () => type,
-  })
-```
-  
-```js
-Plot.plot({
+const tip = (json, type) => 
+  Plot.tip(json.features, 
+    Plot.pointer(
+      Plot.geoCentroid({
+        fx: () => type,
+        title: f =>
+`${f.properties.REGION_NAME}
+Mortgage ${percentFormat(f.properties.repayment_to_rent_ratio)} of Rent
+Rent ${priceFormat(f.properties.typical_monthly_rent)}
+Mortgage ${priceFormat(f.properties.monthly_repayment)}`
+})))
+
+const geo = (json, type) => Plot.geo(json, {
+  fill: d => d.properties.repayment_to_rent_ratio,
+  stroke: 'black',
+  strokeWidth: 0.3,
+  fx: () => type,
+})
+
+view(Plot.plot({
   aspectRatio: 1,
   width: 1200,
   color: {
@@ -477,12 +476,12 @@ Plot.plot({
     label: 'Repayment to rent ratio',
   },
   marks: [
-    fill(melbourneUnits, 'UNIT'),
+    geo(melbourneUnits, 'UNIT'),
     tip(melbourneUnits, 'UNIT'),
-    fill(melbourneHouses, 'HOUSE'),
+    geo(melbourneHouses, 'HOUSE'),
     tip(melbourneHouses, 'HOUSE'),
   ]
-})
+}))
 ```
 
 </div>
