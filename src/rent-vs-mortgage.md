@@ -44,7 +44,7 @@ A comparison of the rents vs mortgage repayments for houses and units in Melbour
 The following sources are used
 * [**Neoval property price data**](https://neoval.io/) as at ${prices.at(0).date.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
 * **ABS rent data** from the 2021 census
-* [**RBA interest rates**](https://www.rba.gov.au/statistics/tables/xls/f06hist.xlsx), with the latest data from ${interestRateAsAt.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })})
+* [**RBA interest rates**](https://www.rba.gov.au/statistics/tables/xls/f06hist.xlsx), with the latest data from ${interestRateAsAt.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
 
 The analysis only includes SA2s from the greater Melbourne region (although it would be easy to extend nationally given appropriate rent data).
 
@@ -158,12 +158,13 @@ Units typically have a ${metrics.median_unit_repayment_to_rent_ratio < metrics.m
 <div class="card">
 
 ```js
+const FIXED_DOMAIN = [1, 9]
 const aggregateRatiosPlot = Plot.plot({
   marginRight: 50,
   color: {
     legend: true,
-    domain: [1, 9],
-    label: "Repayment to rent ratio",
+    domain: FIXED_DOMAIN,
+    label: 'Repayment to rent ratio',
     type: 'linear',
   },
   y: {
@@ -200,18 +201,11 @@ const aggregateRatiosPlot = Plot.plot({
 })
 
 view(aggregateRatiosPlot)
-
-function plotRatioLegend() {
-  return Plot.legend({
-    label: "Repayment to rent ratio",
-    color: aggregateRatiosPlot.scale("color"),
-  })
-}
 ```
 
 </div>
-<div class="card">
 
+<div class="card">
 
 ```js
 Plot.plot({
@@ -266,7 +260,7 @@ Plot.plot({
   color: {
     legend: true,
     domain: [1, 9],
-    label: "Repayment to rent ratio",
+    label: 'Repayment to rent ratio',
   },
   x: {
     domain: [0, maxRepaymentDomain],
@@ -362,20 +356,48 @@ Inputs.table(search, {
 </div>
 
 
-## Where are the mortages "affordable" (closest to rents)?
+## Where are the mortgages relatively "affordable" (closest to rents)?
 
-<div class="card" style="margin: 0 -1rem;">
+```js
+const propertyType = view(Inputs.radio(['HOUSE', 'UNIT'], { label: 'Property type', value: 'HOUSE' }))
+const rangeType = view(Inputs.radio(['DYNAMIC', 'FIXED'], { label: 'Colour range type', value: 'FIXED' }))
+```
+
+The `FIXED` colour range option ensures the same fixed range of colours for consistent display across both units and houses, while the `DYNAMIC` option adjusts the range based on the data to maximise the contrast.
+
+```js
+const dataArray = data.toArray().filter(row => row.property_type === propertyType)
+const sa2Map = new Map(dataArray.map(row => [row.sa2_code.toString(), row]))
+const sa2Codes = new Set(sa2Map.keys())
+const domain = rangeType === 'FIXED' ? FIXED_DOMAIN : undefined
+
+const deckColours = Plot.plot({
+  color: { domain },
+  marks: [Plot.dot(dataArray, { fill: 'repayment_to_rent_ratio' })],
+}).scale('color')
+const plotRatioLegend = Plot.legend({
+  label: 'Repayment to rent ratio',
+  color: deckColours,
+})
+```
+
+<div class="card">
 <figure style="max-width: none; position: relative;">
   <div id="container" style="border-radius: 8px; overflow: hidden; background: rgb(18, 35, 48); height: 800px; margin: 1rem 0; "></div>
-  <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotRatioLegend()}</div>
+  <div style="position: absolute; top: 1rem; right: 1rem; filter: drop-shadow(0 0 4px rgba(0,0,0,.5));">${plotRatioLegend}</div>
   <!-- <figcaption>Data: <a href="">TODO</a></figcaption> -->
 </figure>
 </div>
 
 ```js
-import deck from "npm:deck.gl";
-import mapboxgl from "npm:mapbox-gl";
-import Color from "npm:color-js";
+const sa2s = await FileAttachment('data/sa2_simplified_neoval.geojson').json()
+const melbourneSa2s = {...sa2s, features: sa2s.features.filter(f => sa2Codes.has(f.properties.REGION_CODE))}
+```
+
+```js
+import deck from 'npm:deck.gl'
+import mapboxgl from 'npm:mapbox-gl'
+import Color from 'npm:color-js'
 const {
   DeckGL,
   AmbientLight,
@@ -383,23 +405,9 @@ const {
   ColumnLayer,
   LightingEffect,
   PointLight,
-} = deck;
-// https://observablehq.com/@visionscarto/world-atlas-topojson#files
-const topo = import.meta.resolve("npm:visionscarto-world-atlas/world/50m.json");
-const world = fetch(topo).then((response) => response.json());
-const countries = world.then((world) =>
-  topojson.feature(world, world.objects.countries)
-);
-```
-
-```js
-const sa2s = FileAttachment("data/australia_sa2s.geojson").json();
-```
-
-```js
-const dataArray = data.toArray();
-const fs = [];
-const MELBOURNE_CBD_LAT_LON = [-37.8136, 144.9631];
+} = deck
+const fs = []
+const MELBOURNE_CBD_LAT_LON = [-37.8136, 144.9631]
 
 const deckInstance = new DeckGL({
   container,
@@ -432,73 +440,72 @@ const deckInstance = new DeckGL({
   ],
   controller: true,
   map: mapboxgl,
-  mapboxApiAccessToken:
-    "pk.eyJ1IjoibWF4Ym8iLCJhIjoiY2lsd2JnZDRyMDFxNHZna3MwZDZmN2R0ZCJ9.32XWATCazaiDzdW6bXvBxw",
-  mapStyle: "mapbox://styles/mapbox/light-v10",
+  mapboxApiAccessToken: 'pk.eyJ1IjoibWF4Ym8iLCJhIjoiY2lsd2JnZDRyMDFxNHZna3MwZDZmN2R0ZCJ9.32XWATCazaiDzdW6bXvBxw',
+  mapStyle: 'mapbox://styles/mapbox/light-v10',
   layers: [
     new GeoJsonLayer({
-      id: "sa2s",
-      data: sa2s,
-      opacity: 0.5,
-      wireframe: true,
+      id: 'sa2s',
+      data: melbourneSa2s,
+      pickable: true,
       getFillColor: (f) => {
-        const sa2 = dataArray.find((d) =>
-          d.sa2_code.toString() === f.properties.SA2_MAIN16
-        );
+        const sa2 = sa2Map.get(f?.properties?.REGION_CODE)
+        if (!sa2) return
 
-        if (!sa2) {
-          return undefined;
-        }
+        const hex = deckColours.apply(sa2.repayment_to_rent_ratio)
+        const color = Color(hex)
 
-        const hex = aggregateRatiosPlot.scale("color").apply(
-          sa2.repayment_to_rent_ratio,
-        );
-
-        const color = Color(hex);
-        return [color.red * 255, color.green * 255, color.blue * 255];
+        return [color.red * 255, color.green * 255, color.blue * 255, 0.6 * 255]
       },
-      getText: (f) => f.properties.SA2_MAIN16,
-      // getLineColor: () => [255, 255, 255],
+      getLineColor: 0,
+      getLineWidth: 20,
     }),
   ],
-  getTooltip: ({object}) => {
-    return object && object.properties.SA2_MAIN16
-  } 
-});
+  getTooltip: (point) => {
+    const properties = point?.object?.properties
+    if (!properties) return
+
+    const sa2 = sa2Map.get(properties.REGION_CODE)
+    return sa2
+      ? `${properties.REGION_NAME}\nMortgage ${percentFormat(sa2.repayment_to_rent_ratio)} of Rent`
+      : properties.REGION_NAME
+  },
+})
 
 // clean up if this code re-runs
 invalidation.then(() => {
-  deckInstance.finalize();
-  container.innerHTML = "";
-});
+  deckInstance.finalize()
+  container.innerHTML = ''
+})
 ```
 
 
-```js
-const sa2Codes = dataArray.map(d => d.sa2_code.toString());
-const melbourneSa2s = {...sa2s, features: sa2s.features.filter(f => sa2Codes.includes(f.properties.SA2_MAIN16))}
+<div class='card'>
 
-view(Plot.plot({
+```js
+Plot.plot({
   aspectRatio: 1,
   color: {
+    domain,
     legend: true,
-    domain: [1, 9],
-    label: "Repayment to rent ratio",
+    label: 'Repayment to rent ratio',
   },
   marks: [
     Plot.geo(melbourneSa2s, {
-      fill: (f) => {
-        const sa2 = dataArray.find((d) =>
-          d.sa2_code.toString() === f.properties.SA2_MAIN16
-        );
-
-        if (!sa2) {
-          return undefined;
-        }
-
-        return sa2.repayment_to_rent_ratio
-      },
+      fill: f => sa2Map.get(f?.properties?.REGION_CODE)?.repayment_to_rent_ratio,
+      stroke: 'black',
+      strokeWidth: 0.3,
     }),
+    Plot.tip(melbourneSa2s.features, Plot.pointer(Plot.geoCentroid({
+      anchor: 'bottom',
+      title: (f) => {
+        const sa2 = sa2Map.get(f?.properties?.REGION_CODE)
+        return sa2
+          ? `${f.properties.REGION_NAME}\nMortgage ${percentFormat(sa2.repayment_to_rent_ratio)} of Rent`
+          : f.properties.REGION_NAME
+      },
+    }))),
   ]
-}))
+})
 ```
+
+</div>
