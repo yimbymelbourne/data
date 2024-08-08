@@ -235,7 +235,9 @@ Plot.plot({
 
 </div>
 
-## Detailed Distribution
+## Distribution
+
+### Price distribution
 
 ```js
 // We want to anchor the domains at zero, so need to figure out the maximum ourselves
@@ -303,60 +305,9 @@ Plot.plot({
 
 </div>
 
-## SA2 Details
+### Geographic distribution
 
-The specific details for all SA2s included can be checked below.
-
-```js
-const search = view(Inputs.search(data))
-```
-
-<div class="card" style="padding: 0">
-
-```js
-Inputs.table(search, {
-  width: '100%',
-  height: 800,
-  align: {
-    typical_price: 'right',
-    typical_loan: 'right',
-    monthly_repayment: 'right',
-    typical_monthly_rent: 'right',
-    rent_to_repayment_ratio: 'right',
-    repayment_to_rent_ratio: 'right',
-  },
-  format: {
-    sa2_code: x => `${x}`,
-    sa2_name: titleCaseFormat,
-    sua_name: titleCaseFormat,
-    gcc_name: titleCaseFormat,
-    typical_price: priceFormat,
-    typical_loan: priceFormat,
-    monthly_repayment: priceFormat,
-    typical_monthly_rent: priceFormat,
-    rent_to_repayment_ratio: percentFormat,
-    repayment_to_rent_ratio: percentFormat,
-  },
-  header: {
-    sa2_code: 'SA2 Code',
-    sa2_name: 'SA2 Name',
-    sua_name: 'SUA',
-    gcc_name: 'GCC',
-    property_type: 'Type',
-    typical_price: 'Property $',
-    typical_loan: '80% Loan',
-    monthly_repayment: 'Mortgage',
-    typical_monthly_rent: 'Rent',
-    rent_to_repayment_ratio: 'Rent / Repayment Ratio',
-    repayment_to_rent_ratio: 'Repayment / Rent Ratio',
-  },
-})
-```
-
-</div>
-
-
-## Where are the mortgages relatively "affordable" (closest to rents)?
+Where are the mortgages relatively "affordable" (closest to rents)?
 
 ```js
 const propertyType = view(Inputs.radio(['HOUSE', 'UNIT'], { label: 'Property type', value: 'HOUSE' }))
@@ -523,6 +474,58 @@ Plot.plot({
       fx: () => "HOUSE"
     })))
   ]
+})
+```
+
+</div>
+
+## SA2 Details
+
+The specific details for all SA2s included can be checked below.
+
+```js
+const search = view(Inputs.search(data))
+```
+
+<div class="card" style="padding: 0">
+
+```js
+Inputs.table(search, {
+  width: '100%',
+  height: 800,
+  align: {
+    typical_price: 'right',
+    typical_loan: 'right',
+    monthly_repayment: 'right',
+    typical_monthly_rent: 'right',
+    rent_to_repayment_ratio: 'right',
+    repayment_to_rent_ratio: 'right',
+  },
+  format: {
+    sa2_code: x => `${x}`,
+    sa2_name: titleCaseFormat,
+    sua_name: titleCaseFormat,
+    gcc_name: titleCaseFormat,
+    typical_price: priceFormat,
+    typical_loan: priceFormat,
+    monthly_repayment: priceFormat,
+    typical_monthly_rent: priceFormat,
+    rent_to_repayment_ratio: percentFormat,
+    repayment_to_rent_ratio: percentFormat,
+  },
+  header: {
+    sa2_code: 'SA2 Code',
+    sa2_name: 'SA2 Name',
+    sua_name: 'SUA',
+    gcc_name: 'GCC',
+    property_type: 'Type',
+    typical_price: 'Property $',
+    typical_loan: '80% Loan',
+    monthly_repayment: 'Mortgage',
+    typical_monthly_rent: 'Rent',
+    rent_to_repayment_ratio: 'Rent / Repayment Ratio',
+    repayment_to_rent_ratio: 'Repayment / Rent Ratio',
+  },
 })
 ```
 
