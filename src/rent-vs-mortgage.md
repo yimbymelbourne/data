@@ -387,11 +387,12 @@ const joinDataIntoGeojson = (propertyType) => {
 const melbourneUnits = joinDataIntoGeojson('UNIT')
 const melbourneHouses = joinDataIntoGeojson('HOUSE')
 
+const melbourneWithChosenPropertyType = propertyType === 'UNIT' ? melbourneUnits : melbourneHouses
 const domain = rangeType === 'FIXED' ? FIXED_DOMAIN : undefined
 
 const deckColours = Plot.plot({
   color: { domain },
-  marks: [Plot.dot(dataArray.filter(d => d.property_type), { fill: 'repayment_to_rent_ratio' })],
+  marks: [Plot.geo(melbourneWithChosenPropertyType, { fill: d => d.properties.repayment_to_rent_ratio })],
 }).scale('color')
 
 const plotRatioLegend = Plot.legend({
@@ -460,7 +461,7 @@ const deckInstance = new DeckGL({
   layers: [
     new GeoJsonLayer({
       id: 'sa2s',
-      data:  propertyType === 'UNIT' ? melbourneUnits : melbourneHouses,
+      data: melbourneWithChosenPropertyType,
       pickable: true,
       getFillColor: (f) => {
         console.log(f)
