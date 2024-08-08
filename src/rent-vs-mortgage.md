@@ -317,32 +317,33 @@ const rangeType = view(Inputs.radio(['DYNAMIC', 'FIXED'], { label: 'Colour range
 The `FIXED` colour range option ensures the same fixed range of colours for consistent display across both units and houses, while the `DYNAMIC` option adjusts the range based on the data to maximise the contrast.
 
 ```js
+const sa2s = await FileAttachment('data/sa2_simplified_neoval.geojson').json()
+
 const dataArray = data.toArray()
 const houseSa2s = new Map(dataArray.filter(row => row.property_type === 'HOUSE').map(row => [row.sa2_code.toString(), row]))
 const unitSa2s = new Map(dataArray.filter(row => row.property_type === 'UNIT').map(row => [row.sa2_code.toString(), row]))
-const sa2s = await FileAttachment('data/sa2_simplified_neoval.geojson').json()
 
-const dataGeoJson = {
-  ...sa2s,
-  features: sa2s.features.flatMap(feature => {
-    const house = houseSa2s.get(feature.properties.REGION_CODE)
-    const unit = unitSa2s.get(feature.properties.REGION_CODE)
+const joinDataIntoGeojson = (codeToRow) => {
+  return {...sa2s, features: sa2s.features.flatMap(feature => {
+    const row = codeToRow.get(feature.properties.REGION_CODE)
 
     // can't find any data for a given SA2? strip it out out of the geojson
-    if (!house && !unit) return []
+    if (!row) return []
 
     // otherwise join our computed data into the geojson properties
-    return { ...feature, properties: { ...feature.properties, HOUSE: house, UNIT: unit } }
-  }),
+    return { ...feature, properties: { ...feature.properties, ...row } }
+  })}
 }
 
-const domain = rangeType === 'FIXED' ? FIXED_DOMAIN : undefined
-```
+const melbourneHouses = joinDataIntoGeojson(houseSa2s)
+const melbourneUnits = joinDataIntoGeojson(unitSa2s)
+const dataGeoJson = propertyType === 'HOUSE' ? melbourneHouses : melbourneUnits
 
-```js
+const domain = rangeType === 'FIXED' ? FIXED_DOMAIN : undefined
+
 const deckColours = Plot.plot({
   color: { domain },
-  marks: [Plot.geo(dataGeoJson, { fill: d => d.properties[propertyType]?.repayment_to_rent_ratio })],
+  marks: [Plot.geo(dataGeoJson, { fill: d => d.properties.repayment_to_rent_ratio })],
 }).scale('color')
 
 const plotRatioLegend = Plot.legend({
@@ -414,10 +415,7 @@ const deckInstance = new DeckGL({
       data: dataGeoJson,
       pickable: true,
       getFillColor: (f) => {
-        // Some SA2s have no houses (e.g. Docklands) and some have no units (unsure, but they're out there)
-        if (!f.properties[propertyType]) return [0, 0, 0, 0]
-
-        const hex = deckColours.apply(f.properties[propertyType].repayment_to_rent_ratio)
+        const hex = deckColours.apply(f.properties.repayment_to_rent_ratio)
         const color = Color(hex)
         return [color.red * 255, color.green * 255, color.blue * 255, 0.6 * 255]
       },
@@ -429,7 +427,7 @@ const deckInstance = new DeckGL({
     const properties = point?.object?.properties
     if (!properties) return
 
-    return `${properties.REGION_NAME}\nMortgage ${percentFormat(properties[propertyType]?.repayment_to_rent_ratio)} of Rent`
+    return `${properties.REGION_NAME}\nMortgage ${percentFormat(properties.repayment_to_rent_ratio)} of Rent`
   },
 })
 
@@ -453,24 +451,24 @@ Plot.plot({
     label: 'Repayment to rent ratio',
   },
   marks: [
-    Plot.geo(dataGeoJson, {
-      fill: d => d.properties.UNIT?.repayment_to_rent_ratio,
+    Plot.geo(melbourneUnits, {
+      fill: d => d.properties.repayment_to_rent_ratio,
       stroke: 'black',
       strokeWidth: 0.3,
       fx: () => "UNIT"
     }),
-    Plot.tip(dataGeoJson.features, Plot.pointer(Plot.geoCentroid({
-      title: (f) => `${f.properties.REGION_NAME}\nMortgage ${percentFormat(f.properties.UNIT?.repayment_to_rent_ratio)} of Rent`,
+    Plot.tip(melbourneUnits.features, Plot.pointer(Plot.geoCentroid({
+      title: (f) => `${f.properties.REGION_NAME}\nMortgage ${percentFormat(f.properties.repayment_to_rent_ratio)} of Rent`,
       fx: () => "UNIT"
     }))),
-    Plot.geo(dataGeoJson, {
-      fill: d => d.properties.HOUSE?.repayment_to_rent_ratio,
+    Plot.geo(melbourneHouses, {
+      fill: d => d.properties.repayment_to_rent_ratio,
       stroke: 'black',
       strokeWidth: 0.3,
       fx: () => "HOUSE"
     }),
-    Plot.tip(dataGeoJson.features, Plot.pointer(Plot.geoCentroid({
-      title: (f) => `${f.properties.REGION_NAME}\nMortgage ${percentFormat(f.properties.HOUSE?.repayment_to_rent_ratio)} of Rent`,
+    Plot.tip(melbourneHouses.features, Plot.pointer(Plot.geoCentroid({
+      title: (f) => `${f.properties.REGION_NAME}\nMortgage ${percentFormat(f.properties.repayment_to_rent_ratio)} of Rent`,
       fx: () => "HOUSE"
     })))
   ]
