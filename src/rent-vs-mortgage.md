@@ -414,10 +414,10 @@ const deckInstance = new DeckGL({
   initialViewState: {
     longitude: MELBOURNE_CBD_LAT_LON[1],
     latitude: MELBOURNE_CBD_LAT_LON[0],
-    zoom: 10,
+    zoom: 9,
     minZoom: 5,
     maxZoom: 15,
-    pitch: 40.5,
+    pitch: 0,
     bearing: 0,
   },
   effects: [
