@@ -245,6 +245,7 @@ const maxes = (await (await DuckDBClient.of({ data })).query(`
   select
     max(monthly_repayment) as max_repayment,
     max(typical_monthly_rent) as max_rent,
+    min(repayment_to_rent_ratio) as min_ratio,
   from data
 `)).get(0)
 const round = v => Math.ceil(v / 2000) * 2000
@@ -414,11 +415,11 @@ const deckInstance = new DeckGL({
       id: 'sa2s',
       data: dataGeoJson,
       pickable: true,
-      getFillColor: (f) => {
-        const hex = deckColours.apply(f.properties.repayment_to_rent_ratio)
-        const color = Color(hex)
-        return [color.red * 255, color.green * 255, color.blue * 255, 0.6 * 255]
-      },
+      extruded: true,
+      filled: true,
+      getElevation: (f) => f.properties.repayment_to_rent_ratio - maxes.min_ratio,
+      elevationScale: 10000,
+      getFillColor: (f) => [128, 128, 128, 255],
       getLineColor: 0,
       getLineWidth: 20,
     }),
