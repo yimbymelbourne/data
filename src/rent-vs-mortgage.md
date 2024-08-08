@@ -427,7 +427,14 @@ const deckInstance = new DeckGL({
     const properties = point?.object?.properties
     if (!properties) return
 
-    return `${properties.REGION_NAME}\nMortgage ${percentFormat(properties.repayment_to_rent_ratio)} of Rent`
+    return {
+      html: [
+        `<h2>${properties.REGION_NAME}</h2>`,
+        `<b>Mortgage</b> ${percentFormat(properties.repayment_to_rent_ratio)} of Rent<br>`,
+        `<b>Rent</b> ${priceFormat(properties.typical_monthly_rent)}<br>`,
+        `<b>Mortgage</b> ${priceFormat(properties.monthly_repayment)}<br>`,
+      ].join('\n'),
+    }
   },
 })
 
@@ -442,6 +449,25 @@ invalidation.then(() => {
 <div class='card'>
 
 ```js
+  const tooltip = f => [
+    f.properties.REGION_NAME,
+    `Mortgage ${percentFormat(f.properties.repayment_to_rent_ratio)} of Rent`,
+    `Rent ${priceFormat(f.properties.typical_monthly_rent)}`,
+    `Mortgage ${priceFormat(f.properties.monthly_repayment)}`
+  ].join('\n')
+  const tip = (json, type) => Plot.tip(json.features, Plot.pointer(Plot.geoCentroid({
+    title: tooltip,
+    fx: () => type,
+  })))
+  const fill = (json, type) => Plot.geo(json, {
+    fill: d => d.properties.repayment_to_rent_ratio,
+    stroke: 'black',
+    strokeWidth: 0.3,
+    fx: () => type,
+  })
+```
+  
+```js
 Plot.plot({
   aspectRatio: 1,
   width: 1200,
@@ -451,26 +477,10 @@ Plot.plot({
     label: 'Repayment to rent ratio',
   },
   marks: [
-    Plot.geo(melbourneUnits, {
-      fill: d => d.properties.repayment_to_rent_ratio,
-      stroke: 'black',
-      strokeWidth: 0.3,
-      fx: () => "UNIT"
-    }),
-    Plot.tip(melbourneUnits.features, Plot.pointer(Plot.geoCentroid({
-      title: (f) => `${f.properties.REGION_NAME}\nMortgage ${percentFormat(f.properties.repayment_to_rent_ratio)} of Rent`,
-      fx: () => "UNIT"
-    }))),
-    Plot.geo(melbourneHouses, {
-      fill: d => d.properties.repayment_to_rent_ratio,
-      stroke: 'black',
-      strokeWidth: 0.3,
-      fx: () => "HOUSE"
-    }),
-    Plot.tip(melbourneHouses.features, Plot.pointer(Plot.geoCentroid({
-      title: (f) => `${f.properties.REGION_NAME}\nMortgage ${percentFormat(f.properties.repayment_to_rent_ratio)} of Rent`,
-      fx: () => "HOUSE"
-    })))
+    fill(melbourneUnits, 'UNIT'),
+    tip(melbourneUnits, 'UNIT'),
+    fill(melbourneHouses, 'HOUSE'),
+    tip(melbourneHouses, 'HOUSE'),
   ]
 })
 ```
