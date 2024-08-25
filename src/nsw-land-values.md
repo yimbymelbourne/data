@@ -19,6 +19,10 @@ const landValues = FileAttachment("data/nsw_land_values.parquet").parquet();
 view(Inputs.table(landValues));
 ```
 
+```sql
+SELECT COUNT(*) FROM lvs
+```
+
 ```js
 // ChatGPT generated this, don't trust it
 const NSW_ZONE_CODE_TO_NAME = {
