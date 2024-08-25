@@ -23,15 +23,19 @@ export default {
       name: "Rent vs Mortgage",
       path: "/rent-vs-mortgage",
     },
+    {
+      name: "NSW land values",
+      path: "/nsw-land-values",
+    },
   ],
 
   // Some additional configuration options and their defaults:
   theme: "light", // try "light", "dark", "slate", etc.
-  style: "theme-yimby-melbourne.css"
+  style: "theme-yimby-melbourne.css",
   // header: "", // what to show in the header (HTML)
   // footer: "Built with Observable.", // what to show in the footer (HTML)
   // toc: true, // whether to show the table of contents
   // pager: true, // whether to show previous & next links in the footer
-  // root: "docs", // path to the source root for preview
+  root: "src", // path to the source root for preview
   // output: "dist", // path to the output root for build
 };
