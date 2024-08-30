@@ -39,7 +39,7 @@ const interestRateAsAt = latestInterestRate.A
 
 A comparison of the rents vs mortgage repayments for houses and units in Melbourne.
 
-## Sources and Assumptions
+## Sources and assumptions
 
 The following sources are used
 * [**Neoval property price data**](https://neoval.io/) as at ${prices.at(0).date.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -122,7 +122,7 @@ const data = db.query(`
 const comparisonDb = DuckDBClient.of({ data })
 ```
 
-## Aggregate Ratios
+## Aggregate ratios
 
 ```js
 const metrics = (await comparisonDb.query(`
@@ -486,7 +486,7 @@ view(Plot.plot({
 
 </div>
 
-## SA2 Details
+## SA2 details
 
 The specific details for all SA2s included can be checked below.
 
